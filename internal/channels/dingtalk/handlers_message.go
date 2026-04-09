@@ -79,10 +79,12 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 		Channel:   c.Name(),
 		ChatID:    chatID,
 		SenderID:  senderID,
+		UserID:    senderID,
 		Content:   content,
 		PeerKind:  peerKind,
 		Metadata:  metadata,
 		TenantID:  c.TenantID(),
+		AgentID:   c.AgentID().String(),
 	}
 
 	// In the future: handle pairing rejection logic by sending a raw message back via c.SendRaw
