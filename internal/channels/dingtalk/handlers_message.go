@@ -13,8 +13,10 @@ import (
 // and routes it through the standard channel lifecycle via HandleMessage.
 func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 	if data == nil {
+		slog.Warn("dingtalk: received nil callback data")
 		return
 	}
+	slog.Info("dingtalk: received inbound raw stream payload", "sender", data.SenderId, "type", data.Msgtype, "content", data.Text.Content)
 
 	senderID := data.SenderStaffId
 	if senderID == "" {
@@ -84,7 +86,7 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 		PeerKind:  peerKind,
 		Metadata:  metadata,
 		TenantID:  c.TenantID(),
-		AgentID:   c.AgentID().String(),
+		AgentID:   c.AgentID(),
 	}
 
 	// In the future: handle pairing rejection logic by sending a raw message back via c.SendRaw
