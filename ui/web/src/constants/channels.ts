@@ -2,6 +2,7 @@ export const CHANNEL_TYPES = [
   { value: "discord", label: "Discord" },
   { value: "facebook", label: "Facebook" },
   { value: "feishu", label: "Feishu / Lark" },
+  { value: "dingtalk", label: "DingTalk" },
   { value: "pancake", label: "Pancake (pages.fm)" },
   { value: "slack", label: "Slack" },
   { value: "telegram", label: "Telegram" },

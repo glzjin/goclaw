@@ -63,6 +63,10 @@ export const credentialsSchema: Record<string, FieldDef[]> = {
     { key: "encrypt_key", label: "Encrypt Key", type: "password", help: "For webhook event decryption", showWhen: { key: "connection_mode", value: "webhook" } },
     { key: "verification_token", label: "Verification Token", type: "password", help: "For webhook event verification", showWhen: { key: "connection_mode", value: "webhook" } },
   ],
+  dingtalk: [
+    { key: "client_id", label: "Client ID", type: "text", required: true, placeholder: "dingxxxxxxxxxxxxxx" },
+    { key: "client_secret", label: "Client Secret", type: "password", required: true },
+  ],
   zalo_oa: [
     { key: "token", label: "OA Access Token", type: "password", required: true },
     { key: "webhook_secret", label: "Webhook Secret", type: "password" },
@@ -140,6 +144,13 @@ export const configSchema: Record<string, FieldDef[]> = {
     { key: "reaction_level", label: "Reaction Level", type: "select", options: [{ value: "off", label: "Off" }, { value: "minimal", label: "Minimal" }, { value: "full", label: "Full" }], defaultValue: "off", help: "Typing emoji reaction on user messages while bot is processing" },
     { key: "allow_from", label: "Allowed Users", type: "tags", help: "Lark open_ids (ou_...)" },
     { key: "group_allow_from", label: "Group Allowed Users", type: "tags", help: "Separate allowlist for group senders" },
+    { key: "block_reply", label: "Block Reply", type: "select", options: blockReplyOptions, defaultValue: "inherit", help: "Deliver intermediate text during tool iterations" },
+  ],
+  dingtalk: [
+    { key: "dm_policy", label: "DM Policy", type: "select", options: dmPolicyOptions, defaultValue: "pairing" },
+    { key: "group_policy", label: "Group Policy", type: "select", options: groupPolicyOptions, defaultValue: "pairing" },
+    { key: "require_mention", label: "Require @mention in groups", type: "boolean", defaultValue: true },
+    { key: "allow_from", label: "Allowed Users", type: "tags", help: "DingTalk User IDs" },
     { key: "block_reply", label: "Block Reply", type: "select", options: blockReplyOptions, defaultValue: "inherit", help: "Deliver intermediate text during tool iterations" },
   ],
   zalo_oa: [
