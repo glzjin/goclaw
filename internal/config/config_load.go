@@ -120,6 +120,8 @@ func (c *Config) applyEnvOverrides() {
 	envStr("GOCLAW_LARK_APP_SECRET", &c.Channels.Feishu.AppSecret)
 	envStr("GOCLAW_LARK_ENCRYPT_KEY", &c.Channels.Feishu.EncryptKey)
 	envStr("GOCLAW_LARK_VERIFICATION_TOKEN", &c.Channels.Feishu.VerificationToken)
+	envStr("GOCLAW_CHANNELS_DINGTALK_CLIENT_ID", &c.Channels.DingTalk.ClientID)
+	envStr("GOCLAW_CHANNELS_DINGTALK_CLIENT_SECRET", &c.Channels.DingTalk.ClientSecret)
 	// WhatsApp no longer needs bridge_url — runs natively via whatsmeow.
 	envStr("GOCLAW_SLACK_BOT_TOKEN", &c.Channels.Slack.BotToken)
 	envStr("GOCLAW_SLACK_APP_TOKEN", &c.Channels.Slack.AppToken)
@@ -143,6 +145,9 @@ func (c *Config) applyEnvOverrides() {
 	}
 	if c.Channels.Feishu.AppID != "" && c.Channels.Feishu.AppSecret != "" {
 		c.Channels.Feishu.Enabled = true
+	}
+	if c.Channels.DingTalk.ClientID != "" && c.Channels.DingTalk.ClientSecret != "" {
+		c.Channels.DingTalk.Enabled = true
 	}
 	// WhatsApp is enabled via config or DB instances (no bridge_url needed).
 	if c.Channels.Slack.BotToken != "" && c.Channels.Slack.AppToken != "" {
