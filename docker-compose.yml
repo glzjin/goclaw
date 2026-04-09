@@ -68,9 +68,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 2G
           cpus: '2.0'
-          pids: 200
+          pids: 1000
     networks:
       - default
       - goclaw-net
