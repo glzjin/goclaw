@@ -62,6 +62,7 @@ const (
 	TypeDiscord      = "discord"
 	TypeSlack        = "slack"
 	TypeFeishu       = "feishu"
+	TypeDingTalk     = "dingtalk"
 	TypeWhatsApp     = "whatsapp"
 	TypeZaloOA       = "zalo_oa"
 	TypeZaloPersonal = "zalo_personal"
