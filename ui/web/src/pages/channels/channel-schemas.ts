@@ -151,6 +151,8 @@ export const configSchema: Record<string, FieldDef[]> = {
     { key: "group_policy", label: "Group Policy", type: "select", options: groupPolicyOptions, defaultValue: "pairing" },
     { key: "require_mention", label: "Require @mention in groups", type: "boolean", defaultValue: true },
     { key: "allow_from", label: "Allowed Users", type: "tags", help: "DingTalk User IDs" },
+    { key: "reply_style", label: "Reply Style", type: "select", options: [{value: "markdown", label: "Markdown (Static)"}, {value: "stream_card", label: "AI Streaming Card"}], defaultValue: "markdown", help: "Enable AI Streaming Card for typewriter effect" },
+    { key: "card_template_id", label: "Card Template ID", type: "text", showWhen: { key: "reply_style", value: "stream_card" }, help: "ID of your AI Card Template in DingTalk Developer Console" },
     { key: "block_reply", label: "Block Reply", type: "select", options: blockReplyOptions, defaultValue: "inherit", help: "Deliver intermediate text during tool iterations" },
   ],
   zalo_oa: [

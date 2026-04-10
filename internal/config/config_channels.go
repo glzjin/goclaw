@@ -204,6 +204,8 @@ type DingTalkConfig struct {
 	GroupPolicy       string              `json:"group_policy,omitempty"`    // "open" (default), "allowlist", "disabled"
 	RequireMention    *bool               `json:"require_mention,omitempty"` // require @bot mention in groups (default true)
 	BlockReply        *bool               `json:"block_reply,omitempty"`     // override gateway block_reply (nil = inherit)
+	ReplyStyle        string              `json:"reply_style,omitempty"`     // "markdown" or "stream_card"
+	CardTemplateID    string              `json:"card_template_id,omitempty"`
 	STTProxyURL       string              `json:"stt_proxy_url,omitempty"`
 	STTAPIKey         string              `json:"stt_api_key,omitempty"`
 	STTTenantID       string              `json:"stt_tenant_id,omitempty"`
