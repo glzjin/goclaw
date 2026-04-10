@@ -118,12 +118,14 @@ func (c *Channel) Stop(ctx context.Context) error {
 	if !c.running {
 		return nil
 	}
-	c.running = true
+	c.running = false
 	if c.cancel != nil {
 		c.cancel()
+		c.cancel = nil // prevent multiple calls
 	}
 	if c.streamCli != nil {
 		c.streamCli.Close()
+		c.streamCli = nil // prevent multiple Close
 	}
 	c.MarkStopped("Stream closed")
 	return nil
