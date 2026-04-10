@@ -30,6 +30,9 @@ type Channel struct {
 	oauthCli  *dingtalkoauth2_1_0.Client
 	robotCli  *dingtalkrobot_1_0.Client
 
+	pairingDebounce sync.Map // senderID → time.Time
+	approvedGroups  sync.Map // chatID → bool
+
 	mu      sync.Mutex
 	running bool
 	cancel  context.CancelFunc

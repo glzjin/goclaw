@@ -1,6 +1,7 @@
 package dingtalk
 
 import (
+	"context"
 	"log/slog"
 	"strings"
 
@@ -89,7 +90,14 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 		AgentID:   c.AgentID(),
 	}
 
-	// In the future: handle pairing rejection logic by sending a raw message back via c.SendRaw
-	// Send raw string back if not paired (for now, simply PublishingInbound)
+	// Evaluate DM / Group policies (pairing / allowlist / open / disabled)
+	if isGroup && !c.checkGroupPolicy(context.Background(), senderID, chatID) {
+		slog.Debug("dingtalk: group message rejected by policy", "chat", chatID, "sender", senderID)
+		return
+	} else if !isGroup && !c.checkDMPolicy(context.Background(), senderID, chatID) {
+		slog.Debug("dingtalk: direct message rejected by policy", "chat", chatID, "sender", senderID)
+		return
+	}
+
 	c.msgBus.PublishInbound(msg)
 }
