@@ -8,6 +8,7 @@ import (
 	"math"
 	"math/rand"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -40,9 +41,17 @@ func retryHookFromContext(ctx context.Context) RetryHookFunc {
 }
 
 // DefaultRetryConfig returns sensible defaults matching TS provider retry behavior.
+// Users can override the maximum number of attempts via the GOCLAW_MODEL_MAX_RETRIES environment variable.
 func DefaultRetryConfig() RetryConfig {
+	attempts := 3
+	if val := os.Getenv("GOCLAW_MODEL_MAX_RETRIES"); val != "" {
+		if parsed, err := strconv.Atoi(val); err == nil && parsed > 0 {
+			attempts = parsed
+		}
+	}
+
 	return RetryConfig{
-		Attempts: 3,
+		Attempts: attempts,
 		MinDelay: 300 * time.Millisecond,
 		MaxDelay: 30 * time.Second,
 		Jitter:   0.1,
