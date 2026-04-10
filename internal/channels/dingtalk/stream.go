@@ -70,6 +70,7 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 	} else {
 		// ChatID for DM is SenderID
 		req.UserId = tea.String(chatID)
+		req.OpenSpaceId = tea.String("dtv1.card//IM_ROBOT." + chatID)
 		req.ImRobotOpenDeliverModel = &card_1_0.CreateAndDeliverRequestImRobotOpenDeliverModel{
 			RobotCode: tea.String(c.cfg.ClientID),
 		}
