@@ -3,6 +3,8 @@ package dingtalk
 import (
 	"context"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/open-dingtalk/dingtalk-stream-sdk-go/chatbot"
@@ -40,19 +42,22 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 	isMedia := data.Msgtype == "picture" || data.Msgtype == "file" || data.Msgtype == "audio" || data.Msgtype == "video" || data.Msgtype == "richText"
 	if isMedia {
 		if contentMap, ok := data.Content.(map[string]interface{}); ok {
+			
+			// Debug: display all metadata for file
+			if data.Msgtype == "file" || data.Msgtype == "audio" || data.Msgtype == "video" {
+				slog.Info("dingtalk: media content inspected", "msgtype", data.Msgtype, "content", data.Content)
+			}
+			
 			dlCode, _ := contentMap["downloadCode"].(string)
 			
-			// For richText, sometimes downloadCode is nested inside array elements. Log it to understand the structure.
+			// For richText, sometimes downloadCode is nested inside array elements.
 			if dlCode == "" {
-				slog.Warn("dingtalk: media message missing top-level downloadCode, inspecting content", "msgtype", data.Msgtype, "content", data.Content)
-				
-				// Attempt to recursively or iteratively find richText pictures
 				if richTextArr, ok := contentMap["richText"].([]interface{}); ok {
 					for _, item := range richTextArr {
 						if rMap, ok := item.(map[string]interface{}); ok {
 							if innerDlCode, ok := rMap["downloadCode"].(string); ok && innerDlCode != "" {
 								dlCode = innerDlCode
-								break // Just grab the first one for now
+								break
 							}
 						}
 					}
@@ -64,6 +69,16 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 				if err != nil {
 					slog.Error("dingtalk: failed to download media", "err", err, "downloadCode", dlCode)
 				} else {
+					// Rename temp file if fileName is provided in contentMap to help document parser
+					if fName, ok := contentMap["fileName"].(string); ok && fName != "" && !strings.Contains(tmpPath, ".") {
+						if ext := filepath.Ext(fName); ext != "" {
+							newPath := tmpPath + ext
+							if err := os.Rename(tmpPath, newPath); err == nil {
+								tmpPath = newPath
+							}
+						}
+					}
+
 					media = append(media, bus.MediaFile{
 						Path:     tmpPath,
 						MimeType: mime,
