@@ -8,6 +8,7 @@ import (
 
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	card_1_0 "github.com/alibabacloud-go/dingtalk/card_1_0"
+	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/google/uuid"
 
@@ -27,7 +28,7 @@ func (c *Channel) ReasoningStreamEnabled() bool {
 // CreateStream initializes an AI Streaming Card for the DingTalk conversation.
 func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream bool) (channels.ChannelStream, error) {
 	if !c.StreamEnabled(strings.HasPrefix(chatID, "group:")) {
-		return nil, channels.ErrNotImplemented
+		return nil, fmt.Errorf("stream mode not enabled for dingtalk channel")
 	}
 
 	token, err := c.getAccessToken()
@@ -46,12 +47,12 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 	outTrackID := uuid.New().String()
 
 	req := &card_1_0.CreateAndDeliverRequest{
-		UserIdType:     tea.String("staffId"),
+		UserIdType:     tea.Int32(1), // 1 is staffId
 		CardTemplateId: tea.String(c.cfg.CardTemplateID),
 		OutTrackId:     tea.String(outTrackID),
 		CardData: &card_1_0.CreateAndDeliverRequestCardData{
 			CardParamMap: map[string]*string{
-				"content": tea.String("思考中..."), // Initial loading text
+				"content": tea.String("🤔 思考中..."),
 			},
 		},
 	}
@@ -68,9 +69,9 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 		}
 	} else {
 		// ChatID for DM is SenderID
-		req.ReceiverUserIdList = []*string{tea.String(chatID)}
-		req.ImRobotOpenSpaceModel = &card_1_0.CreateAndDeliverRequestImRobotOpenSpaceModel{
-			SupportForward: tea.Bool(true),
+		req.UserId = tea.String(chatID)
+		req.ImRobotOpenDeliverModel = &card_1_0.CreateAndDeliverRequestImRobotOpenDeliverModel{
+			RobotCode: tea.String(c.cfg.ClientID),
 		}
 	}
 
@@ -78,7 +79,7 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 	headers.SetXAcsDingtalkAccessToken(token)
 
 	// Send the initial card
-	_, deliverErr := cardClient.CreateAndDeliverWithOptions(req, headers, &openapi.RuntimeOptions{})
+	_, deliverErr := cardClient.CreateAndDeliverWithOptions(req, headers, &util.RuntimeOptions{})
 	if deliverErr != nil {
 		slog.Error("dingtalk: failed to deliver stream card", "error", deliverErr)
 		return nil, deliverErr
@@ -120,7 +121,7 @@ func (s *dingCardStream) Update(ctx context.Context, text string) {
 	headers := &card_1_0.StreamingUpdateHeaders{}
 	headers.SetXAcsDingtalkAccessToken(s.token)
 
-	_, err := s.cardClient.StreamingUpdateWithOptions(req, headers, &openapi.RuntimeOptions{})
+	_, err := s.cardClient.StreamingUpdateWithOptions(req, headers, &util.RuntimeOptions{})
 	if err != nil {
 		slog.Warn("dingtalk: streaming update failed", "error", err)
 	}
@@ -140,7 +141,7 @@ func (s *dingCardStream) Stop(ctx context.Context) error {
 	headers := &card_1_0.StreamingUpdateHeaders{}
 	headers.SetXAcsDingtalkAccessToken(s.token)
 
-	_, err := s.cardClient.StreamingUpdateWithOptions(req, headers, &openapi.RuntimeOptions{})
+	_, err := s.cardClient.StreamingUpdateWithOptions(req, headers, &util.RuntimeOptions{})
 	if err != nil {
 		slog.Warn("dingtalk: streaming finalize failed", "error", err)
 	}
