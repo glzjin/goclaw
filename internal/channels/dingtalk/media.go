@@ -179,8 +179,7 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 			if fileType == "" {
 				fileType = "file"
 			}
-			// Dingtalk expects media_id, file_name, file_type
-			msgParam = fmt.Sprintf(`{"media_id": "%s", "file_name": "%s", "file_type": "%s"}`, mediaId, fileName, fileType)
+			msgParam = fmt.Sprintf(`{"fileKey": "%s", "fileName": "%s", "fileType": "%s"}`, mediaId, fileName, fileType)
 		}
 
 		if isGroup {
