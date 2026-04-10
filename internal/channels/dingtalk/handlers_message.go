@@ -69,8 +69,9 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 				if err != nil {
 					slog.Error("dingtalk: failed to download media", "err", err, "downloadCode", dlCode)
 				} else {
+					fName, _ := contentMap["fileName"].(string)
 					// Rename temp file if fileName is provided in contentMap to help document parser
-					if fName, ok := contentMap["fileName"].(string); ok && fName != "" && !strings.Contains(tmpPath, ".") {
+					if fName != "" && !strings.Contains(tmpPath, ".") {
 						if ext := filepath.Ext(fName); ext != "" {
 							newPath := tmpPath + ext
 							if err := os.Rename(tmpPath, newPath); err == nil {
@@ -83,8 +84,18 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 						Path:     tmpPath,
 						MimeType: mime,
 					})
+					
+					// Inject metadata into the content so the LLM agent explicitly sees what the attachment is 
+					// and what path to use for read_document or vision tools.
+					attachmentInfo := "[收到附件: " + tmpPath + "]"
+					if fName != "" {
+						attachmentInfo = "[收到文件: " + fName + ", 内部路径: " + tmpPath + "]"
+					}
+					
 					if content == "" {
-						content = "[附件]"
+						content = attachmentInfo
+					} else {
+						content = content + "\n" + attachmentInfo
 					}
 				}
 			}
