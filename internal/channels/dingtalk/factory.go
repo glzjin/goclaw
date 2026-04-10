@@ -23,6 +23,8 @@ type dingTalkInstanceConfig struct {
 	GroupPolicy    string   `json:"group_policy,omitempty"`
 	RequireMention *bool    `json:"require_mention,omitempty"`
 	BlockReply     *bool    `json:"block_reply,omitempty"`
+	ReplyStyle     string   `json:"reply_style,omitempty"`
+	CardTemplateID string   `json:"card_template_id,omitempty"`
 }
 
 // Factory creates a DingTalk channel from DB instance data.
@@ -55,6 +57,8 @@ func Factory(name string, creds json.RawMessage, cfg json.RawMessage,
 		GroupPolicy:    ic.GroupPolicy,
 		RequireMention: ic.RequireMention,
 		BlockReply:     ic.BlockReply,
+		ReplyStyle:     ic.ReplyStyle,
+		CardTemplateID: ic.CardTemplateID,
 	}
 
 	// DB instances default to "pairing" for groups (secure by default).
