@@ -27,10 +27,10 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 
 	var chatID string
 	if isGroup {
-		chatID = data.ConversationId // Use ConversationId for group context
-		senderID = "group:dingtalk:" + chatID + ":" + senderID
+		chatID = "group:" + data.ConversationId // Use ConversationId for group context
+		senderID = "group:dingtalk:" + data.ConversationId + ":" + senderID
 	} else {
-		chatID = data.ConversationId
+		chatID = senderID
 	}
 
 	content := strings.TrimSpace(data.Text.Content)
