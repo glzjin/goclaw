@@ -117,10 +117,10 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 					// Native Media Pre-Extraction Engine
 					if data.Msgtype == "audio" || data.Msgtype == "voice" {
 						transcript, sttErr := media.TranscribeAudio(context.Background(), media.STTConfig{
-							ProxyURL:       c.BaseChannel.Config().STTProxyURL,
-							APIKey:         c.BaseChannel.Config().STTAPIKey,
-							TenantID:       c.BaseChannel.Config().STTTenantID,
-							TimeoutSeconds: c.BaseChannel.Config().STTTimeoutSeconds,
+							ProxyURL:       c.cfg.STTProxyURL,
+							APIKey:         c.cfg.STTAPIKey,
+							TenantID:       c.cfg.STTTenantID,
+							TimeoutSeconds: c.cfg.STTTimeoutSeconds,
 						}, tmpPath)
 						if sttErr != nil {
 							slog.Warn("dingtalk: STT transcription failed", "error", sttErr)

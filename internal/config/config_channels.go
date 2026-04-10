@@ -196,14 +196,18 @@ type FeishuConfig struct {
 }
 
 type DingTalkConfig struct {
-	Enabled        bool                `json:"enabled"`
-	ClientID       string              `json:"client_id"`
-	ClientSecret   string              `json:"client_secret"`
-	AllowFrom      FlexibleStringSlice `json:"allow_from"`
-	DMPolicy       string              `json:"dm_policy,omitempty"`       // "pairing" (default), "allowlist", "open", "disabled"
-	GroupPolicy    string              `json:"group_policy,omitempty"`    // "open" (default), "allowlist", "disabled"
-	RequireMention *bool               `json:"require_mention,omitempty"` // require @bot mention in groups (default true)
-	BlockReply     *bool               `json:"block_reply,omitempty"`     // override gateway block_reply (nil = inherit)
+	Enabled           bool                `json:"enabled"`
+	ClientID          string              `json:"client_id"`
+	ClientSecret      string              `json:"client_secret"`
+	AllowFrom         FlexibleStringSlice `json:"allow_from"`
+	DMPolicy          string              `json:"dm_policy,omitempty"`       // "pairing" (default), "allowlist", "open", "disabled"
+	GroupPolicy       string              `json:"group_policy,omitempty"`    // "open" (default), "allowlist", "disabled"
+	RequireMention    *bool               `json:"require_mention,omitempty"` // require @bot mention in groups (default true)
+	BlockReply        *bool               `json:"block_reply,omitempty"`     // override gateway block_reply (nil = inherit)
+	STTProxyURL       string              `json:"stt_proxy_url,omitempty"`
+	STTAPIKey         string              `json:"stt_api_key,omitempty"`
+	STTTenantID       string              `json:"stt_tenant_id,omitempty"`
+	STTTimeoutSeconds int                 `json:"stt_timeout_seconds,omitempty"`
 }
 
 // ProvidersConfig maps provider name to its config.
