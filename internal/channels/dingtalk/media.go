@@ -208,6 +208,10 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 
 	// Send Text Message If Present
 	if msg.Content != "" {
+		if _, loaded := c.streamDedup.LoadAndDelete(msg.ChatID); loaded && len(msg.Media) == 0 {
+			slog.Debug("dingtalk: deduplicating final text message because it was already sent via stream card", "chat", msg.ChatID)
+			return nil
+		}
 		if isGroup {
 			request := &dingtalkrobot_1_0.OrgGroupSendRequest{
 				MsgKey:             tea.String("sampleMarkdown"),

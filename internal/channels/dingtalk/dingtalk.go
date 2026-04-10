@@ -32,6 +32,7 @@ type Channel struct {
 
 	pairingDebounce sync.Map // senderID → time.Time
 	approvedGroups  sync.Map // chatID → bool
+	streamDedup     sync.Map // outTrackID/chatID → bool
 
 	mu      sync.Mutex
 	running bool

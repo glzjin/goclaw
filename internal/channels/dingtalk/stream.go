@@ -15,8 +15,8 @@ import (
 	"github.com/nextlevelbuilder/goclaw/internal/channels"
 )
 
-// StreamEnabled returns true if the channel is configured to use AI Streaming Cards.
 func (c *Channel) StreamEnabled(isGroup bool) bool {
+	slog.Info("dingtalk: checking stream enabled", "reply_style", c.cfg.ReplyStyle, "tmpl", c.cfg.CardTemplateID)
 	return c.cfg.ReplyStyle == "stream_card" && c.cfg.CardTemplateID != ""
 }
 
@@ -95,7 +95,9 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 
 // FinalizeStream passes the final message payload.
 // For DingTalk cards, the card stream updates in place and there's no platform message ID returned.
-func (c *Channel) FinalizeStream(ctx context.Context, chatID string, stream channels.ChannelStream) {}
+func (c *Channel) FinalizeStream(ctx context.Context, chatID string, stream channels.ChannelStream) {
+	c.streamDedup.Store(chatID, true)
+}
 
 type dingCardStream struct {
 	channel    *Channel

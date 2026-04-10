@@ -44,7 +44,7 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 		case protocol.AgentEventRunStarted:
 			stream, err := sc.CreateStream(ctx, rc.ChatID, true)
 			if err != nil {
-				slog.Debug("stream start failed", "channel", rc.ChannelName, "error", err)
+				slog.Error("stream start failed", "channel", rc.ChannelName, "error", err)
 			} else {
 				rc.mu.Lock()
 				rc.stream = stream
