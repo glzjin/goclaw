@@ -171,8 +171,15 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 			msgParam = fmt.Sprintf(`{"photoURL": "%s"}`, mediaId)
 		} else {
 			msgKey = "sampleFile"
-			// Dingtalk's OpenAPI v1.0 only expects media_id for sampleFile. Extra params cause 500 error.
-			msgParam = fmt.Sprintf(`{"media_id": "%s"}`, mediaId)
+			fileName := filepath.Base(m.URL)
+			if m.Caption != "" {
+				fileName = m.Caption
+			}
+			fileType := strings.TrimPrefix(filepath.Ext(fileName), ".")
+			if fileType == "" {
+				fileType = "file"
+			}
+			msgParam = fmt.Sprintf(`{"mediaId": "%s", "fileName": "%s", "fileType": "%s"}`, mediaId, fileName, fileType)
 		}
 
 		if isGroup {
