@@ -19,28 +19,43 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 		return fmt.Errorf("failed to get token: %w", err)
 	}
 
-	headers := &dingtalkrobot_1_0.OrgGroupSendHeaders{}
-	headers.XAcsDingtalkAccessToken = tea.String(token)
+	isGroup := strings.HasPrefix(msg.ChatID, "group:")
+	targetChatID := strings.TrimPrefix(msg.ChatID, "group:")
 
-	// Determine if we need Markdown based on formatting
-	request := &dingtalkrobot_1_0.OrgGroupSendRequest{
-		MsgKey:    tea.String("sampleMarkdown"),
-		MsgParam:  tea.String(fmt.Sprintf(`{"title": "GoClaw", "text": %q}`, msg.Content)), // Requires JSON representation safely
-		OpenConversationId: tea.String(msg.ChatID),
-		RobotCode:          tea.String(c.cfg.ClientID),
+	if isGroup {
+		headers := &dingtalkrobot_1_0.OrgGroupSendHeaders{}
+		headers.XAcsDingtalkAccessToken = tea.String(token)
+		request := &dingtalkrobot_1_0.OrgGroupSendRequest{
+			MsgKey:             tea.String("sampleMarkdown"),
+			MsgParam:           tea.String(fmt.Sprintf(`{"title": "GoClaw", "text": %q}`, msg.Content)),
+			OpenConversationId: tea.String(targetChatID),
+			RobotCode:          tea.String(c.cfg.ClientID),
+		}
+
+		response, err := c.robotCli.OrgGroupSendWithOptions(request, headers, &util.RuntimeOptions{})
+		if err != nil {
+			slog.Error("dingtalk: failed to send group message", "err", err)
+			return err
+		}
+		slog.Debug("dingtalk: group message sent", "status", *response.StatusCode)
+	} else {
+		headers := &dingtalkrobot_1_0.BatchSendOTOHeaders{}
+		headers.XAcsDingtalkAccessToken = tea.String(token)
+		request := &dingtalkrobot_1_0.BatchSendOTORequest{
+			MsgKey:    tea.String("sampleMarkdown"),
+			MsgParam:  tea.String(fmt.Sprintf(`{"title": "GoClaw", "text": %q}`, msg.Content)),
+			UserIds:   []*string{tea.String(targetChatID)},
+			RobotCode: tea.String(c.cfg.ClientID),
+		}
+
+		response, err := c.robotCli.BatchSendOTOWithOptions(request, headers, &util.RuntimeOptions{})
+		if err != nil {
+			slog.Error("dingtalk: failed to send direct message", "err", err)
+			return err
+		}
+		slog.Debug("dingtalk: direct message sent", "status", *response.StatusCode)
 	}
-	
-	// Fallback to plain text if needed: msgKey: "sampleText", msgParam: {"content": "..."}
-	request.MsgKey = tea.String("sampleText")
-	request.MsgParam = tea.String(fmt.Sprintf(`{"content": %q}`, msg.Content))
 
-	response, err := c.robotCli.OrgGroupSendWithOptions(request, headers, &util.RuntimeOptions{})
-	if err != nil {
-		slog.Error("dingtalk: failed to send message", "err", err)
-		return err
-	}
-
-	slog.Debug("dingtalk: message sent", "status", *response.StatusCode)
 	return nil
 }
 
