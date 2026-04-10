@@ -36,7 +36,27 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 
 	content := strings.TrimSpace(data.Text.Content)
 
-	if content == "" {
+	var media []bus.MediaFile
+	if data.Msgtype == "picture" || data.Msgtype == "file" || data.Msgtype == "audio" || data.Msgtype == "video" {
+		if contentMap, ok := data.Content.(map[string]interface{}); ok {
+			if dlCode, ok := contentMap["downloadCode"].(string); ok && dlCode != "" {
+				tmpPath, mime, err := c.downloadMediaFiles(context.Background(), dlCode)
+				if err != nil {
+					slog.Error("dingtalk: failed to download media", "err", err, "downloadCode", dlCode)
+				} else {
+					media = append(media, bus.MediaFile{
+						Path:     tmpPath,
+						MimeType: mime,
+					})
+					if content == "" {
+						content = "[附件]"
+					}
+				}
+			}
+		}
+	}
+
+	if content == "" && len(media) == 0 {
 		slog.Debug("dingtalk: rejecting empty message or unsupported type", "type", data.Msgtype)
 		return
 	}
@@ -84,6 +104,7 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 		SenderID:  senderID,
 		UserID:    senderID,
 		Content:   content,
+		Media:     media,
 		PeerKind:  peerKind,
 		Metadata:  metadata,
 		TenantID:  c.TenantID(),
