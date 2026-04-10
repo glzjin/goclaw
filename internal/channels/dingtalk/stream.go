@@ -119,12 +119,14 @@ type dingCardStream struct {
 	cardClient *card_1_0.Client
 	outTrackID string
 	token      string
+	lastText   string
 }
 
 func (s *dingCardStream) Update(ctx context.Context, text string) {
 	if text == "" {
 		return
 	}
+	s.lastText = text
 
 	req := &card_1_0.StreamingUpdateRequest{
 		OutTrackId: tea.String(s.outTrackID),
@@ -150,7 +152,7 @@ func (s *dingCardStream) Stop(ctx context.Context) error {
 		OutTrackId: tea.String(s.outTrackID),
 		Guid:       tea.String(uuid.New().String()),
 		Key:        tea.String("content"),
-		Content:    tea.String(""), // Content isn't applied when IsFinalize is true usually, or pass last content.
+		Content:    tea.String(s.lastText), // Must echo last text, or it overrides with empty
 		IsFull:     tea.Bool(true),
 		IsFinalize: tea.Bool(true),
 	}
