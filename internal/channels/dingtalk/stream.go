@@ -93,7 +93,12 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 		slog.Error("dingtalk: failed to deliver stream card", "error", deliverErr)
 		return nil, deliverErr
 	}
-	slog.Info("dingtalk: stream card created", "status", tea.IntValue(res.StatusCode), "body", res.Body)
+	
+	status := int32(0)
+	if res != nil && res.StatusCode != nil {
+		status = *res.StatusCode
+	}
+	slog.Info("dingtalk: stream card created", "status", status, "body", res.Body)
 
 	return &dingCardStream{
 		channel:    c,
