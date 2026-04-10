@@ -74,6 +74,9 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 		req.OpenSpaceId = tea.String("dtv1.card//im_robot." + chatID)
 		req.ImRobotOpenSpaceModel = &card_1_0.CreateAndDeliverRequestImRobotOpenSpaceModel{
 			SupportForward: tea.Bool(true),
+			LastMessageI18n: map[string]*string{
+				"ZH_CN": tea.String("🤔 思考中..."),
+			},
 		}
 		req.ImRobotOpenDeliverModel = &card_1_0.CreateAndDeliverRequestImRobotOpenDeliverModel{
 			SpaceType: tea.String("IM_ROBOT"), // Mandatory per documentation
@@ -85,11 +88,12 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 	headers.SetXAcsDingtalkAccessToken(token)
 
 	// Send the initial card
-	_, deliverErr := cardClient.CreateAndDeliverWithOptions(req, headers, &util.RuntimeOptions{})
+	res, deliverErr := cardClient.CreateAndDeliverWithOptions(req, headers, &util.RuntimeOptions{})
 	if deliverErr != nil {
 		slog.Error("dingtalk: failed to deliver stream card", "error", deliverErr)
 		return nil, deliverErr
 	}
+	slog.Info("dingtalk: stream card created", "status", tea.IntValue(res.StatusCode), "body", res.Body)
 
 	return &dingCardStream{
 		channel:    c,
