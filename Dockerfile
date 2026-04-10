@@ -18,6 +18,7 @@ WORKDIR /src
 
 # Cache dependencies
 COPY go.mod go.sum ./
+COPY pkg/ ./pkg/
 RUN go mod download
 
 # Copy source
