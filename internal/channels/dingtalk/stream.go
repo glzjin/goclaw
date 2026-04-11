@@ -147,12 +147,18 @@ func (s *dingCardStream) Update(ctx context.Context, text string) {
 }
 
 func (s *dingCardStream) Stop(ctx context.Context) error {
+	finalContent := s.lastText
+	if finalContent == "" {
+		finalContent = "🤔 完成"
+	}
+
 	// Send finalize signal
 	req := &card_1_0.StreamingUpdateRequest{
 		OutTrackId: tea.String(s.outTrackID),
 		Guid:       tea.String(uuid.New().String()),
-		Key:        tea.String("content"), // Required by OpenAPI schema, even when finalizing
-		IsFull:     tea.Bool(false),
+		Key:        tea.String("content"), // Required by OpenAPI schema
+		Content:    tea.String(finalContent), // Required by OpenAPI schema
+		IsFull:     tea.Bool(true), // Safest to use full redraw
 		IsFinalize: tea.Bool(true),
 	}
 
