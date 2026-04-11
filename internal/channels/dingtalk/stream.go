@@ -151,6 +151,7 @@ func (s *dingCardStream) Stop(ctx context.Context) error {
 	req := &card_1_0.StreamingUpdateRequest{
 		OutTrackId: tea.String(s.outTrackID),
 		Guid:       tea.String(uuid.New().String()),
+		Key:        tea.String("content"), // Required by OpenAPI schema, even when finalizing
 		IsFull:     tea.Bool(false),
 		IsFinalize: tea.Bool(true),
 	}
