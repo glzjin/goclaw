@@ -151,9 +151,7 @@ func (s *dingCardStream) Stop(ctx context.Context) error {
 	req := &card_1_0.StreamingUpdateRequest{
 		OutTrackId: tea.String(s.outTrackID),
 		Guid:       tea.String(uuid.New().String()),
-		Key:        tea.String("content"),
-		Content:    tea.String(s.lastText), // Must echo last text, or it overrides with empty
-		IsFull:     tea.Bool(true),
+		IsFull:     tea.Bool(false),
 		IsFinalize: tea.Bool(true),
 	}
 
