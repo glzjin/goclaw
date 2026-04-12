@@ -148,8 +148,10 @@ func (s *dingCardStream) Update(ctx context.Context, text string) {
 
 func (s *dingCardStream) Stop(ctx context.Context) error {
 	finalContent := s.lastText
+	isFull := true
+	
 	if finalContent == "" {
-		finalContent = "🤔 完成"
+		isFull = false // If we have no text, use incremental update (append empty string) to avoid clearing the card
 	}
 
 	// Send finalize signal
@@ -158,7 +160,7 @@ func (s *dingCardStream) Stop(ctx context.Context) error {
 		Guid:       tea.String(uuid.New().String()),
 		Key:        tea.String("content"), // Required by OpenAPI schema
 		Content:    tea.String(finalContent), // Required by OpenAPI schema
-		IsFull:     tea.Bool(true), // Safest to use full redraw
+		IsFull:     tea.Bool(isFull), // Safest to use full redraw, unless empty to prevent clearing
 		IsFinalize: tea.Bool(true),
 	}
 
