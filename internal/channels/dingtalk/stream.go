@@ -151,7 +151,9 @@ func (s *dingCardStream) Stop(ctx context.Context) error {
 	isFull := true
 	
 	if finalContent == "" {
-		isFull = false // If we have no text, use incremental update (append empty string) to avoid clearing the card
+		// When the text stream is empty, it means the LLM responded solely with a tool call (no thought preamble).
+		// We replace the placeholder with a tool execution status so the card doesn't appear emptily bugged.
+		finalContent = "🛠️ 正在调用系统工具..."
 	}
 
 	// Send finalize signal
