@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nextlevelbuilder/goclaw/internal/eventbus"
 	"github.com/nextlevelbuilder/goclaw/internal/providers"
+	"github.com/nextlevelbuilder/goclaw/internal/providerresolve"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
 
@@ -26,8 +27,8 @@ const (
 type dreamingWorker struct {
 	episodicStore store.EpisodicStore
 	memoryStore   store.MemoryStore
-	provider      providers.Provider
-	model         string // LLM model for synthesis
+	systemConfigs store.SystemConfigStore // per-tenant provider config
+	registry      *providers.Registry     // provider resolution
 
 	// threshold/debounce are the global defaults. Per-agent overrides come
 	// from resolveConfig which reads the agent's MemoryConfig.Dreaming JSONB.
@@ -36,6 +37,11 @@ type dreamingWorker struct {
 	resolveConfig DreamingConfigResolver
 
 	lastRun sync.Map // key: "agentID:userID" → time.Time
+}
+
+// resolveProvider delegates to shared background provider resolution.
+func (w *dreamingWorker) resolveProvider(ctx context.Context, tenantID uuid.UUID) (providers.Provider, string) {
+	return providerresolve.ResolveBackgroundProvider(ctx, tenantID, w.registry, w.systemConfigs)
 }
 
 // formatEntryForSynthesis renders a single episodic entry with recall
@@ -143,8 +149,16 @@ func (w *dreamingWorker) Handle(ctx context.Context, event eventbus.DomainEvent)
 		return nil
 	}
 
+	// Resolve provider for this tenant at processing time.
+	tenantUUID, _ := uuid.Parse(event.TenantID)
+	provider, model := w.resolveProvider(ctx, tenantUUID)
+	if provider == nil {
+		slog.Warn("dreaming: no provider available", "tenant", event.TenantID, "agent", agentID)
+		return nil
+	}
+
 	// Build LLM prompt and call provider.
-	synthesis, err := w.synthesize(ctx, entries)
+	synthesis, err := w.synthesize(ctx, provider, model, entries)
 	if err != nil {
 		slog.Warn("dreaming: LLM synthesis failed", "err", err, "agent", agentID)
 		return nil
@@ -181,19 +195,19 @@ func (w *dreamingWorker) Handle(ctx context.Context, event eventbus.DomainEvent)
 // synthesize calls the LLM to extract long-term facts from session summaries.
 // Each entry is annotated with its recall metadata so the LLM can weight
 // frequently-recalled memories higher during synthesis.
-func (w *dreamingWorker) synthesize(ctx context.Context, entries []store.EpisodicSummary) (string, error) {
+func (w *dreamingWorker) synthesize(ctx context.Context, provider providers.Provider, model string, entries []store.EpisodicSummary) (string, error) {
 	summaries := make([]string, len(entries))
 	for i, e := range entries {
 		summaries[i] = formatEntryForSynthesis(e)
 	}
 	body := strings.Join(summaries, "\n---\n")
 
-	resp, err := w.provider.Chat(ctx, providers.ChatRequest{
+	resp, err := provider.Chat(ctx, providers.ChatRequest{
 		Messages: []providers.Message{
 			{Role: "system", Content: dreamingSystemPrompt},
 			{Role: "user", Content: "Session summaries:\n---\n" + body + "\n---"},
 		},
-		Model: w.model,
+		Model: model,
 		Options: map[string]any{
 			providers.OptMaxTokens: dreamingMaxTokens,
 		},

@@ -978,18 +978,24 @@ func TestObserveStage_FinalContent_NotSetWhenToolCalls(t *testing.T) {
 	}
 }
 
-func TestObserveStage_BlockReplies_IncrementedPerContentResponse(t *testing.T) {
+func TestObserveStage_BlockReplies_IncrementedOnlyWithToolCalls(t *testing.T) {
 	t.Parallel()
 	deps := &PipelineDeps{}
 	stage := NewObserveStage(deps)
 	state := defaultState()
 
-	// first response with content
-	state.Think.LastResponse = &providers.ChatResponse{Content: "reply 1", FinishReason: "stop"}
+	// first tool iteration response (has tool calls → should count)
+	state.Think.LastResponse = &providers.ChatResponse{
+		Content:   "reply 1",
+		ToolCalls: []providers.ToolCall{{ID: "1", Name: "tool_a"}},
+	}
 	_ = stage.Execute(context.Background(), state)
 
-	// second response with content
-	state.Think.LastResponse = &providers.ChatResponse{Content: "reply 2", FinishReason: "stop"}
+	// second tool iteration response (has tool calls → should count)
+	state.Think.LastResponse = &providers.ChatResponse{
+		Content:   "reply 2",
+		ToolCalls: []providers.ToolCall{{ID: "2", Name: "tool_b"}},
+	}
 	_ = stage.Execute(context.Background(), state)
 
 	if state.Observe.BlockReplies != 2 {
@@ -997,6 +1003,34 @@ func TestObserveStage_BlockReplies_IncrementedPerContentResponse(t *testing.T) {
 	}
 	if state.Observe.LastBlockReply != "reply 2" {
 		t.Errorf("LastBlockReply = %q, want reply 2", state.Observe.LastBlockReply)
+	}
+}
+
+// Regression test for #838: final answer (no tool calls) must NOT increment
+// BlockReplies, otherwise gateway dedup falsely suppresses delivery.
+func TestObserveStage_FinalAnswer_NoToolCalls_BlockRepliesNotIncremented(t *testing.T) {
+	t.Parallel()
+	deps := &PipelineDeps{}
+	stage := NewObserveStage(deps)
+	state := defaultState()
+
+	// Final answer: content but NO tool calls
+	state.Think.LastResponse = &providers.ChatResponse{
+		Content:      "Here is your answer.",
+		FinishReason: "stop",
+		ToolCalls:    nil,
+	}
+	_ = stage.Execute(context.Background(), state)
+
+	if state.Observe.BlockReplies != 0 {
+		t.Errorf("BlockReplies = %d, want 0 for final answer without tool calls", state.Observe.BlockReplies)
+	}
+	if state.Observe.LastBlockReply != "" {
+		t.Errorf("LastBlockReply = %q, want empty for final answer", state.Observe.LastBlockReply)
+	}
+	// FinalContent should still be set
+	if state.Observe.FinalContent != "Here is your answer." {
+		t.Errorf("FinalContent = %q, want answer text", state.Observe.FinalContent)
 	}
 }
 

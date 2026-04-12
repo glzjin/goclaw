@@ -18,11 +18,11 @@ import (
 )
 
 const (
-	defaultRecoveryInterval    = 5 * time.Minute
-	defaultStaleThreshold      = 2 * time.Hour
-	defaultInReviewThreshold   = 4 * time.Hour
-	followupCooldown           = 5 * time.Minute
-	defaultFollowupInterval    = 30 * time.Minute
+	defaultRecoveryInterval  = 5 * time.Minute
+	defaultStaleThreshold    = 2 * time.Hour
+	defaultInReviewThreshold = 4 * time.Hour
+	followupCooldown         = 5 * time.Minute
+	defaultFollowupInterval  = 30 * time.Minute
 )
 
 // TaskTicker periodically recovers stale tasks and re-dispatches pending work.
@@ -237,9 +237,13 @@ func (t *TaskTicker) notifyLeaders(ctx context.Context, tasks []store.RecoveredT
 
 		// Resolve PeerKind from first task's metadata for correct session routing (#266).
 		var peerKind string
-		if fullTask, err := t.teams.GetTask(ctx, scopeTasks[0].ID); err == nil && fullTask != nil && fullTask.Metadata != nil {
-			if pk, ok := fullTask.Metadata["peer_kind"].(string); ok {
-				peerKind = pk
+		var fullTask *store.TeamTaskData
+		if task, err := t.teams.GetTask(ctx, scopeTasks[0].ID); err == nil {
+			fullTask = task
+			if fullTask != nil && fullTask.Metadata != nil {
+				if pk, ok := fullTask.Metadata["peer_kind"].(string); ok {
+					peerKind = pk
+				}
 			}
 		}
 
@@ -247,6 +251,7 @@ func (t *TaskTicker) notifyLeaders(ctx context.Context, tasks []store.RecoveredT
 			Channel:  channel,
 			SenderID: "ticker:system",
 			ChatID:   chatID,
+			Metadata: tools.TaskLocalKeyMetadata(fullTask),
 			AgentID:  lead.AgentKey,
 			UserID:   team.CreatedBy,
 			PeerKind: peerKind,
@@ -334,11 +339,7 @@ func (t *TaskTicker) processTeamFollowups(ctx context.Context, tasks []store.Tea
 		}
 		content := fmt.Sprintf("Reminder (%s): %s", countLabel, task.FollowupMessage)
 
-		if !t.msgBus.TryPublishOutbound(bus.OutboundMessage{
-			Channel: task.FollowupChannel,
-			ChatID:  task.FollowupChatID,
-			Content: content,
-		}) {
+		if !t.msgBus.TryPublishOutbound(followupOutboundMessage(task, content)) {
 			slog.Warn("task_ticker: outbound buffer full, skipping followup", "task_id", task.ID)
 			continue
 		}
@@ -368,6 +369,16 @@ func (t *TaskTicker) processTeamFollowups(ctx context.Context, tasks []store.Tea
 			"team_id", task.TeamID,
 		)
 	}
+}
+
+func followupOutboundMessage(task *store.TeamTaskData, content string) bus.OutboundMessage {
+	message := bus.OutboundMessage{
+		Channel: task.FollowupChannel,
+		ChatID:  task.FollowupChatID,
+		Content: content,
+	}
+	message.Metadata = tools.TaskLocalKeyMetadata(task)
+	return message
 }
 
 // followupInterval parses the team's followup_interval_minutes setting.

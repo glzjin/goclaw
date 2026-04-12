@@ -8,7 +8,7 @@ import { BehaviorSessionsCard } from "./behavior-sessions-card";
 import { BehaviorSecurityCard } from "./behavior-security-card";
 import { BehaviorPendingCompactionCard, type PendingCompactionValues } from "./behavior-pending-compaction-card";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 interface Props {
   config: Record<string, any>;
@@ -77,7 +77,7 @@ export function BehaviorSection({ config, onPatch, saving }: Props) {
     });
     setPendingCompaction(ch.pending_compaction ?? {});
     setDirty(false);
-  }, [config]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [config]);  
 
   const markDirty = <T,>(setter: React.Dispatch<React.SetStateAction<T>>) =>
     (v: T) => { setter(v); setDirty(true); };

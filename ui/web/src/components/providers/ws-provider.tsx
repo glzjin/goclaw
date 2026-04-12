@@ -53,14 +53,14 @@ export function WsProvider({ children }: { children: React.ReactNode }) {
                 store.setTenantSelected(true);
               } else if (!client.isOwner && tenants.length === 1) {
                 // Non-owner with single tenant — auto-select
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                 
                 localStorage.setItem(LOCAL_STORAGE_KEYS.TENANT_ID, tenants[0]!.slug);
                 store.setTenantSelected(true);
               } else if (!client.isOwner && tenants.length === 0) {
                 // No tenants — leave tenantSelected=false (blocked)
               } else if (client.isOwner && !savedScope && tenants.length > 0) {
                 // Owner without scope — auto-select first tenant
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                 
                 localStorage.setItem(LOCAL_STORAGE_KEYS.TENANT_ID, tenants[0]!.slug);
                 window.location.reload();
                 return;
