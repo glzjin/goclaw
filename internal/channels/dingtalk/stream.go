@@ -87,24 +87,16 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 	headers := &card_1_0.CreateAndDeliverHeaders{}
 	headers.SetXAcsDingtalkAccessToken(token)
 
-	// Send the initial card
-	res, deliverErr := cardClient.CreateAndDeliverWithOptions(req, headers, &util.RuntimeOptions{})
-	if deliverErr != nil {
-		slog.Error("dingtalk: failed to deliver stream card", "error", deliverErr)
-		return nil, deliverErr
-	}
-	
-	status := int32(0)
-	if res != nil && res.StatusCode != nil {
-		status = *res.StatusCode
-	}
-	slog.Info("dingtalk: stream card created", "status", status, "body", res.Body)
-
+	// Defer creation of the actual card to the first Update call
+	// to prevent creating bugged empty tool-card wrappers for silent tool runs.
 	return &dingCardStream{
-		channel:    c,
-		cardClient: cardClient,
-		outTrackID: outTrackID,
-		token:      token,
+		channel:       c,
+		cardClient:    cardClient,
+		outTrackID:    outTrackID,
+		token:         token,
+		createReq:     req,
+		createHeaders: headers,
+		created:       false,
 	}, nil
 }
 
@@ -115,16 +107,35 @@ func (c *Channel) FinalizeStream(ctx context.Context, chatID string, stream chan
 }
 
 type dingCardStream struct {
-	channel    *Channel
-	cardClient *card_1_0.Client
-	outTrackID string
-	token      string
-	lastText   string
+	channel       *Channel
+	cardClient    *card_1_0.Client
+	outTrackID    string
+	token         string
+	lastText      string
+	
+	createReq     *card_1_0.CreateAndDeliverRequest
+	createHeaders *card_1_0.CreateAndDeliverHeaders
+	created       bool
 }
 
 func (s *dingCardStream) Update(ctx context.Context, text string) {
 	if text == "" {
 		return
+	}
+
+	// Lazily create the card on first actual text chunk
+	if !s.created {
+		res, deliverErr := s.cardClient.CreateAndDeliverWithOptions(s.createReq, s.createHeaders, &util.RuntimeOptions{})
+		if deliverErr != nil {
+			slog.Error("dingtalk: deferred CreateAndDeliver failed", "error", deliverErr)
+			return
+		}
+		status := int32(0)
+		if res != nil && res.StatusCode != nil {
+			status = *res.StatusCode
+		}
+		slog.Info("dingtalk: deferred stream card created", "status", status)
+		s.created = true
 	}
 	s.lastText = text
 
@@ -147,6 +158,12 @@ func (s *dingCardStream) Update(ctx context.Context, text string) {
 }
 
 func (s *dingCardStream) Stop(ctx context.Context) error {
+	// If the stream card was never created (no printable text ever streamed, silent tool run), abort!
+	if !s.created {
+		slog.Debug("dingtalk: stream card creation was deferred and skipped entirely as there was no text")
+		return nil
+	}
+
 	finalContent := s.lastText
 	isFull := true
 	
