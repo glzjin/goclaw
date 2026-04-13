@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -121,6 +122,20 @@ func resolveHostWorkspacePath(ctx context.Context, localPath string) string {
 //  2. HOSTNAME env var — usually the short container ID (but can be overridden)
 //  3. os.Hostname() — fallback
 func detectContainerID() string {
+	// Strategy 0: Parse /proc/self/cgroup for Docker container ID.
+	// This works universally across cgroups v1 and v2.
+	if data, err := os.ReadFile("/proc/self/cgroup"); err == nil {
+		// Look for 64-character hex ID typical of Docker containers
+		re := regexp.MustCompile(`([0-9a-f]{64})`)
+		for line := range strings.SplitSeq(string(data), "\n") {
+			if strings.Contains(line, "/docker/") || strings.Contains(line, "docker-") || strings.Contains(line, "/runc/") {
+				if m := re.FindStringSubmatch(line); len(m) > 1 {
+					return m[1]
+				}
+			}
+		}
+	}
+
 	// Strategy 1: Parse /proc/self/mountinfo for docker container ID.
 	// Lines contain paths like /docker/containers/<id>/...
 	if data, err := os.ReadFile("/proc/self/mountinfo"); err == nil {
@@ -139,12 +154,18 @@ func detectContainerID() string {
 
 	// Strategy 2: HOSTNAME env var (common Docker default).
 	if h := os.Getenv("HOSTNAME"); h != "" {
-		return h
+		// Only trust HOSTNAME if it looks like a typical docker short hash (~12 chars)
+		// Otherwise in host networking mode, we might get the system hostname.
+		if len(h) == 12 && regexp.MustCompile(`^[0-9a-f]+$`).MatchString(h) {
+			return h
+		}
 	}
 
 	// Strategy 3: os.Hostname() fallback.
 	if h, err := os.Hostname(); err == nil && h != "" {
-		return h
+		if len(h) == 12 && regexp.MustCompile(`^[0-9a-f]+$`).MatchString(h) {
+			return h
+		}
 	}
 
 	return ""
