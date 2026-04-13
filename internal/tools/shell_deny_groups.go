@@ -43,7 +43,7 @@ var DenyGroupRegistry = map[string]*DenyGroup{
 			regexp.MustCompile(`\bcurl\b.*(-d\b|-F\b|--data|--upload|--form|-T\b|(-X|--request)\s*P(UT|OST|ATCH))`), // curl POST/PUT
 			regexp.MustCompile(`\bwget\b.*-O\s*-\s*\|\s*(ba)?sh\b`),                                              // wget | sh
 			regexp.MustCompile(`\bwget\b.*(--post-(data|file)|--method=P(UT|OST|ATCH)|--body-data)`),             // wget POST
-			regexp.MustCompile(`\b(nslookup|dig|host)\b`),                                                        // DNS exfiltration
+			regexp.MustCompile(`(?:^|\s|[;|&]+)(nslookup|dig|host)(?:\s|[;|&]+|$)`),                                                        // DNS exfiltration
 			regexp.MustCompile(`/dev/tcp/`),                                                                       // bash tcp redirect
 			regexp.MustCompile(`\b(curl|wget)\b.*\blocalhost\b`),                                                  // curl/wget to localhost
 			regexp.MustCompile(`\b(curl|wget)\b.*\b127\.0\.0\.1\b`),                                              // curl/wget to 127.0.0.1

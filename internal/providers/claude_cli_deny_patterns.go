@@ -20,7 +20,7 @@ var ShellDenyPatterns = []string{
 	`\bcurl\b.*(-d\b|-F\b|--data|--upload|--form|-T\b|-X\s*P(UT|OST|ATCH))`,
 	`\bwget\b.*-O\s*-\s*\|\s*(ba)?sh\b`,
 	`\bwget\b.*--post-(data|file)`,
-	`\b(nslookup|dig|host)\b`,
+	`(?:^|\s|[;|&]+)(nslookup|dig|host)(?:\s|[;|&]+|$)`,
 	`/dev/tcp/`,
 
 	// Reverse shells
