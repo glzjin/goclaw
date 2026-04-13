@@ -275,7 +275,8 @@ func (c *Config) applyEnvOverrides() {
 	}
 	if v := os.Getenv("GOCLAW_SANDBOX_NETWORK"); v != "" {
 		ensureSandbox()
-		c.Agents.Defaults.Sandbox.NetworkEnabled = v == "true" || v == "1"
+		b := v == "true" || v == "1"
+		c.Agents.Defaults.Sandbox.NetworkEnabled = &b
 	}
 
 	// Browser (for Docker-compose browser sidecar overlay)

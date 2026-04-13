@@ -215,7 +215,7 @@ type SandboxConfig struct {
 	MemoryMB        int               `json:"memory_mb,omitempty"`        // memory limit in MB (default 512)
 	CPUs            float64           `json:"cpus,omitempty"`             // CPU limit (default 1.0)
 	TimeoutSec      int               `json:"timeout_sec,omitempty"`      // exec timeout in seconds (default 300)
-	NetworkEnabled  bool              `json:"network_enabled,omitempty"`  // enable network (default false)
+	NetworkEnabled  *bool             `json:"network_enabled,omitempty"`  // enable network (default false)
 	ReadOnlyRoot    *bool             `json:"read_only_root,omitempty"`   // read-only root fs (default true)
 	SetupCommand    string            `json:"setup_command,omitempty"`    // run once after container creation
 	Env             map[string]string `json:"env,omitempty"`              // extra environment variables
@@ -276,7 +276,9 @@ func (sc *SandboxConfig) ToSandboxConfig() sandbox.Config {
 	if sc.TimeoutSec > 0 {
 		cfg.TimeoutSec = sc.TimeoutSec
 	}
-	cfg.NetworkEnabled = sc.NetworkEnabled
+	if sc.NetworkEnabled != nil {
+		cfg.NetworkEnabled = *sc.NetworkEnabled
+	}
 	if sc.ReadOnlyRoot != nil {
 		cfg.ReadOnlyRoot = *sc.ReadOnlyRoot
 	}
