@@ -116,13 +116,7 @@ func (b *FsBridge) resolvePath(path string) string {
 		return b.workdir
 	}
 	if strings.HasPrefix(path, "/") {
-		// Validate absolute paths stay within workdir (defense in depth,
-		// container is already sandboxed with read-only FS + cap-drop ALL).
-		cleaned := filepath.Clean(path)
-		if cleaned == b.workdir || strings.HasPrefix(cleaned, b.workdir+"/") {
-			return cleaned
-		}
-		return b.workdir // fallback to workdir for escapes
+		return filepath.Clean(path)
 	}
 	// Relative paths: use filepath.Join for proper normalization
 	return filepath.Clean(filepath.Join(b.workdir, path))
