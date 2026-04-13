@@ -260,13 +260,22 @@ func (t *ExecTool) Execute(ctx context.Context, args map[string]any) *Result {
 		}
 	}
 
+	rawWd, _ := args["working_dir"].(string)
+
+	// Sandbox routing (sandboxKey from ctx — thread-safe)
+	sandboxKey := ToolSandboxKeyFromCtx(ctx)
+	if t.sandboxMgr != nil && sandboxKey != "" {
+		return t.executeInSandbox(ctx, command, rawWd, sandboxKey)
+	}
+
+	// Host execution handling:
 	// Use per-user workspace from context if available, fallback to struct field.
 	// The context workspace is tenant-scoped; t.workspace is the global (master) workspace.
 	cwd := ToolWorkspaceFromCtx(ctx)
 	if cwd == "" {
 		cwd = t.workspace
 	}
-	if wd, _ := args["working_dir"].(string); wd != "" {
+	if rawWd != "" {
 		if effectiveRestrict(ctx, t.restrict) {
 			// Validate working_dir against the tenant-scoped workspace (not the
 			// global workspace) so non-master tenants can't escape their scope.
@@ -276,20 +285,14 @@ func (t *ExecTool) Execute(ctx context.Context, args map[string]any) *Result {
 				wsBase = t.workspace
 			}
 			allowed := allowedWithTeamWorkspace(ctx, nil)
-			resolved, err := resolvePathWithAllowed(wd, wsBase, true, allowed)
+			resolved, err := resolvePathWithAllowed(rawWd, wsBase, true, allowed)
 			if err != nil {
 				return ErrorResult(err.Error())
 			}
 			cwd = resolved
 		} else {
-			cwd = wd
+			cwd = rawWd
 		}
-	}
-
-	// Sandbox routing (sandboxKey from ctx — thread-safe)
-	sandboxKey := ToolSandboxKeyFromCtx(ctx)
-	if t.sandboxMgr != nil && sandboxKey != "" {
-		return t.executeInSandbox(ctx, command, cwd, sandboxKey)
 	}
 
 	// Host execution
@@ -370,6 +373,9 @@ func (t *ExecTool) executeInSandbox(ctx context.Context, command, cwd, sandboxKe
 	containerCwd, cwdErr := SandboxCwd(ctx, t.workspace, sandbox.DefaultContainerWorkdir)
 	if cwdErr != nil {
 		return ErrorResult(fmt.Sprintf("sandbox path mapping: %v", cwdErr))
+	}
+	if cwd != "" {
+		containerCwd = ResolveSandboxPath(cwd, containerCwd)
 	}
 
 	result, err := sb.Exec(ctx, []string{"sh", "-c", command}, containerCwd) //nolint: no ExecOption for normal exec
