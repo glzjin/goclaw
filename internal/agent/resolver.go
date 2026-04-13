@@ -66,6 +66,9 @@ type ResolverDeps struct {
 	TeamStore store.TeamStore
 	DataDir   string // global workspace root for team workspace resolution
 
+	// System root data directory for skills-store and bundled resources
+	SystemDataDir string
+
 	// Secure CLI credential store for credentialed exec
 	SecureCLIStore store.SecureCLIStore
 
@@ -244,7 +247,7 @@ func NewManagedResolver(deps ResolverDeps) ResolverFunc {
 		var sandboxCfgOverride *sandbox.Config
 		if c := ag.ParseSandboxConfig(); c != nil {
 			resolved := c.ToSandboxConfig()
-			sandbox.InjectSkillMounts(&resolved, deps.DataDir)
+			sandbox.InjectSkillMounts(&resolved, deps.SystemDataDir)
 			sandboxContainerDir = resolved.ContainerWorkdir()
 			sandboxWorkspaceAccess = string(resolved.WorkspaceAccess)
 			sandboxCfgOverride = &resolved

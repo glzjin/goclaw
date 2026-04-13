@@ -173,6 +173,7 @@ func wireExtras(
 		AgentLinkStore:         stores.AgentLinks,
 		TeamStore:              stores.Teams,
 		DataDir:                workspace,
+		SystemDataDir:          appCfg.ResolvedDataDir(),
 		SecureCLIStore:         stores.SecureCLI,
 		BuiltinToolStore:       stores.BuiltinTools,
 		MCPStore:               stores.MCP,
