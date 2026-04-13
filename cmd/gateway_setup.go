@@ -62,6 +62,7 @@ func setupToolRegistry(
 			)
 		} else {
 			resolved := sbCfg.ToSandboxConfig()
+			sandbox.InjectSkillMounts(&resolved, cfg.ResolvedDataDir())
 			sandboxMgr = sandbox.NewDockerManager(resolved)
 			slog.Info("sandbox enabled", "mode", string(resolved.Mode), "image", resolved.Image, "scope", string(resolved.Scope))
 		}

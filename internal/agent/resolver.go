@@ -244,6 +244,7 @@ func NewManagedResolver(deps ResolverDeps) ResolverFunc {
 		var sandboxCfgOverride *sandbox.Config
 		if c := ag.ParseSandboxConfig(); c != nil {
 			resolved := c.ToSandboxConfig()
+			sandbox.InjectSkillMounts(&resolved, deps.DataDir)
 			sandboxContainerDir = resolved.ContainerWorkdir()
 			sandboxWorkspaceAccess = string(resolved.WorkspaceAccess)
 			sandboxCfgOverride = &resolved

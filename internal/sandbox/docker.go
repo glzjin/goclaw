@@ -100,6 +100,12 @@ func newDockerSandbox(ctx context.Context, name string, cfg Config, workspace st
 	}
 	args = append(args, "-w", containerWorkdir)
 
+	// Extra Read-Only mounts (e.g. skills-store, bundled-skills)
+	for _, m := range cfg.ExtraROMounts {
+		hostPath := resolveHostWorkspacePath(ctx, m)
+		args = append(args, "-v", fmt.Sprintf("%s:%s:ro", hostPath, m))
+	}
+
 	// Environment variables
 	for k, v := range cfg.Env {
 		args = append(args, "-e", k+"="+v)

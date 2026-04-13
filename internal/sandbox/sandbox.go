@@ -20,6 +20,8 @@ package sandbox
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -63,6 +65,7 @@ type Config struct {
 	NetworkEnabled    bool              `json:"network_enabled"`
 	RestrictedDomains []string          `json:"restricted_domains,omitempty"`
 	Env               map[string]string `json:"env,omitempty"`
+	ExtraROMounts     []string          `json:"extra_ro_mounts,omitempty"` // clear host-to-container readonly mounts
 
 	// Security hardening (matching TS buildSandboxCreateArgs)
 	ReadOnlyRoot    bool     `json:"read_only_root"`
@@ -103,6 +106,21 @@ func DefaultConfig() Config {
 		IdleHours:        24,
 		MaxAgeDays:       7,
 		PruneIntervalMin: 5,
+	}
+}
+
+// InjectSkillMounts adds standard paths for skills to the sandbox configuration's ExtraROMounts.
+func InjectSkillMounts(cfg *Config, dataDir string) {
+	if dataDir != "" {
+		cfg.ExtraROMounts = append(cfg.ExtraROMounts, filepath.Join(dataDir, "skills-store"))
+		cfg.ExtraROMounts = append(cfg.ExtraROMounts, filepath.Join(dataDir, "skills")) // backward compat global skills
+	}
+	if bundledDir := os.Getenv("GOCLAW_BUNDLED_SKILLS_DIR"); bundledDir != "" {
+		cfg.ExtraROMounts = append(cfg.ExtraROMounts, bundledDir)
+	} else if info, err := os.Stat("/app/bundled-skills"); err == nil && info.IsDir() {
+		cfg.ExtraROMounts = append(cfg.ExtraROMounts, "/app/bundled-skills")
+	} else if info, err := os.Stat("bundled-skills"); err == nil && info.IsDir() {
+		cfg.ExtraROMounts = append(cfg.ExtraROMounts, "bundled-skills")
 	}
 }
 
