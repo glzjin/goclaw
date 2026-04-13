@@ -112,6 +112,9 @@ type ResolverDeps struct {
 	// Global workspace root (GOCLAW_WORKSPACE)
 	Workspace string
 
+	// Global shell deny groups
+	ShellDenyGroups map[string]bool
+
 	// V3 auto-inject: episodic memory injection into system prompt (nil = disabled)
 	AutoInjector memory.AutoInjector
 
@@ -419,6 +422,19 @@ func NewManagedResolver(deps ResolverDeps) ResolverFunc {
 			evoMetricsStore = deps.EvolutionMetricsStore
 		}
 
+		// Shell deny group overrides (merge global defaults with agent overrides)
+		agentDenyGroups := ag.ParseShellDenyGroups()
+		var mergedDenyGroups map[string]bool
+		if len(deps.ShellDenyGroups) > 0 || len(agentDenyGroups) > 0 {
+			mergedDenyGroups = make(map[string]bool)
+			for k, v := range deps.ShellDenyGroups {
+				mergedDenyGroups[k] = v
+			}
+			for k, v := range agentDenyGroups {
+				mergedDenyGroups[k] = v // agent overrides global
+			}
+		}
+
 		restrictVal := true // always restrict agents to their workspace
 		loop := NewLoop(LoopConfig{
 			ID:                     ag.AgentKey,
@@ -475,7 +491,7 @@ func NewManagedResolver(deps ResolverDeps) ResolverFunc {
 			SkillEvolve:            ag.AgentType == store.AgentTypePredefined && ag.ParseSkillEvolve(),
 			SkillNudgeInterval:     ag.ParseSkillNudgeInterval(),
 			WorkspaceSharing:       ag.ParseWorkspaceSharing(),
-			ShellDenyGroups:        ag.ParseShellDenyGroups(),
+			ShellDenyGroups:        mergedDenyGroups,
 			ConfigPermStore:        deps.ConfigPermStore,
 			TeamStore:              deps.TeamStore,
 			SecureCLIStore:         deps.SecureCLIStore,

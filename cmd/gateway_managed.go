@@ -187,6 +187,7 @@ func wireExtras(
 		BuiltinToolTenantCfgs:  stores.BuiltinToolTenantCfgs,
 		SkillTenantCfgs:        stores.SkillTenantCfgs,
 		Workspace:              workspace,
+		ShellDenyGroups:        appCfg.Tools.ShellDenyGroups,
 		AutoInjector:           autoInjector,
 		EvolutionMetricsStore:  stores.EvolutionMetrics,
 		DomainBus:              domainBus,
