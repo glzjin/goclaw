@@ -189,6 +189,8 @@ func (s *PGAgentStore) Update(ctx context.Context, id uuid.UUID, updates map[str
 		return nil
 	}
 
+	slog.Info("pg.agent.update.start", "id", id, "allowed_updates", updates)
+
 	// Coerce NOT NULL columns: null → default to prevent constraint violations.
 	// Promoted TEXT columns (migration 000037): null → empty string.
 	for _, col := range []string{"emoji", "agent_description", "thinking_level"} {

@@ -361,6 +361,8 @@ func (h *AgentsHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	if !bindJSON(w, r, locale, &updates) {
 		return
 	}
+	
+	slog.Info("agent.update", "id", id, "updates", updates)
 
 	// Allowlist: only permit known agent columns to be updated.
 	// Defense-in-depth against column injection via arbitrary JSON keys.

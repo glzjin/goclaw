@@ -49,7 +49,7 @@ export function ShellSecuritySection({ data, onSave, saving }: Props) {
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
-    setDraft(data?.shellDenyGroups ?? {});
+    setDraft(data?.shell_deny_groups ?? {});
     setDirty(false);
   }, [data]);
 
@@ -59,7 +59,7 @@ export function ShellSecuritySection({ data, onSave, saving }: Props) {
   }, []);
 
   const handleSave = async () => {
-    await onSave({ ...data, shellDenyGroups: draft });
+    await onSave({ ...data, shell_deny_groups: draft });
     setDirty(false);
   };
 
