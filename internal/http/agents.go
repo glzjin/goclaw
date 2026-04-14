@@ -424,6 +424,20 @@ func (h *AgentsHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Force JSON marshaling for JSONB fields before passing to the DB driver.
+	// Prevents native PQ driver errors or silent failures when dealing with map[string]any.
+	for _, col := range []string{"tools_config", "sandbox_config", "subagents_config", "memory_config", "compaction_config", "context_pruning", "other_config", "reasoning_config", "workspace_sharing", "chatgpt_oauth_routing", "shell_deny_groups", "kg_dedup_config"} {
+		if val, exists := allowed[col]; exists && val != nil {
+			if _, isBytes := val.([]byte); !isBytes {
+				if _, isString := val.(string); !isString {
+					if b, err := json.Marshal(val); err == nil {
+						allowed[col] = b
+					}
+				}
+			}
+		}
+	}
+
 	if err := h.agents.Update(r.Context(), id, allowed); err != nil {
 		slog.Error("agents.update", "id", id, "user_id", userID,
 			"tenant_id", store.TenantIDFromContext(r.Context()), "error", err)
