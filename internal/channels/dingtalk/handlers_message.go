@@ -28,6 +28,9 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 	if senderID == "" {
 		senderID = data.SenderId
 	}
+	// rawSenderID is the platform user identity, consistent across DM and group contexts.
+	// Used for contact recording so the same person is not duplicated per group.
+	rawSenderID := senderID
 
 	isGroup := data.ConversationType == "2"
 
@@ -192,9 +195,10 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 
 		slog.Debug("dingtalk: recorded unmentioned group message", "chat", chatID, "sender", senderLabel)
 
-		// Record contact quietly
+		// Record contact quietly — use rawSenderID so the same person
+		// is not duplicated across groups and DMs.
 		if cc := c.ContactCollector(); cc != nil {
-			cc.EnsureContact(context.Background(), c.Type(), c.Name(), senderID, data.SenderId, senderLabel, "", "group", "user", "", "")
+			cc.EnsureContact(context.Background(), c.Type(), c.Name(), rawSenderID, data.SenderId, senderLabel, "", "group", "user", "", "")
 			cc.EnsureContact(context.Background(), c.Type(), c.Name(), chatID, "", data.ConversationTitle, "", "group", "group", "", "")
 		}
 		return
@@ -243,9 +247,10 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 		return
 	}
 
-	// Collect contact for processed messages
+	// Collect contact for processed messages — use rawSenderID so the
+	// same person is not duplicated across groups and DMs.
 	if cc := c.ContactCollector(); cc != nil {
-		cc.EnsureContact(context.Background(), c.Type(), c.Name(), senderID, data.SenderId, senderLabel, "", peerKind, "user", "", "")
+		cc.EnsureContact(context.Background(), c.Type(), c.Name(), rawSenderID, data.SenderId, senderLabel, "", peerKind, "user", "", "")
 		if isGroup {
 			cc.EnsureContact(context.Background(), c.Type(), c.Name(), chatID, "", data.ConversationTitle, "", "group", "group", "", "")
 		}
