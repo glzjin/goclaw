@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"sync"
+	"time"
 
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	card_1_0 "github.com/alibabacloud-go/dingtalk/card_1_0"
@@ -108,6 +110,7 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 		cardClient: cardClient,
 		outTrackID: outTrackID,
 		token:      token,
+		throttle:   1000 * time.Millisecond,
 	}, nil
 }
 
@@ -122,18 +125,47 @@ type dingCardStream struct {
 	cardClient *card_1_0.Client
 	outTrackID string
 	token      string
-	lastText   string
+	
+	mu       sync.Mutex
+	stopped  bool
+	lastText string
+	pending  string
+	lastEdit time.Time
+	throttle time.Duration
 }
 
 func (s *dingCardStream) Update(ctx context.Context, text string) {
-	if text == "" {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.stopped || text == "" {
 		return
 	}
-	s.lastText = text
+
+	// Dedup
+	if text == s.lastText {
+		return
+	}
+	s.pending = text
+
+	// Throttle check
+	if time.Since(s.lastEdit) < s.throttle {
+		return
+	}
+
+	s.flush(ctx)
+}
+
+// flush does the actual HTTP call. Caller must hold mu.
+func (s *dingCardStream) flush(ctx context.Context) {
+	if s.pending == "" || s.pending == s.lastText {
+		return
+	}
+	text := s.pending
 
 	req := &card_1_0.StreamingUpdateRequest{
 		OutTrackId: tea.String(s.outTrackID),
-		Guid:       tea.String(uuid.New().String()), // Each update needs a unique GUID
+		Guid:       tea.String(uuid.New().String()),
 		Key:        tea.String("content"),
 		Content:    tea.String(text),
 		IsFull:     tea.Bool(true),
@@ -143,38 +175,52 @@ func (s *dingCardStream) Update(ctx context.Context, text string) {
 	headers := &card_1_0.StreamingUpdateHeaders{}
 	headers.SetXAcsDingtalkAccessToken(s.token)
 
+	// Release lock to avoid blocking other Update/Stop calls while HTTP is pending
+	s.mu.Unlock()
 	_, err := s.cardClient.StreamingUpdateWithOptions(req, headers, &util.RuntimeOptions{})
+	s.mu.Lock()
+
 	if err != nil {
 		slog.Warn("dingtalk: streaming update failed", "error", err)
+		return
 	}
+	s.lastText = text
+	s.lastEdit = time.Now()
 }
 
 func (s *dingCardStream) Stop(ctx context.Context) error {
-	finalContent := s.lastText
-	isFull := true
-	
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.stopped = true
+	finalContent := s.pending
+	if finalContent == "" {
+		finalContent = s.lastText
+	}
 	if finalContent == "" {
 		finalContent = "..."
 	}
 
-	// Send finalize signal
 	req := &card_1_0.StreamingUpdateRequest{
 		OutTrackId: tea.String(s.outTrackID),
 		Guid:       tea.String(uuid.New().String()),
-		Key:        tea.String("content"), // Required by OpenAPI schema
-		Content:    tea.String(finalContent), // Required by OpenAPI schema
-		IsFull:     tea.Bool(isFull), // Safest to use full redraw, unless empty to prevent clearing
+		Key:        tea.String("content"),
+		Content:    tea.String(finalContent),
+		IsFull:     tea.Bool(true),
 		IsFinalize: tea.Bool(true),
 	}
 
 	headers := &card_1_0.StreamingUpdateHeaders{}
 	headers.SetXAcsDingtalkAccessToken(s.token)
 
+	s.mu.Unlock()
 	_, err := s.cardClient.StreamingUpdateWithOptions(req, headers, &util.RuntimeOptions{})
+	s.mu.Lock()
+
 	if err != nil {
 		slog.Warn("dingtalk: streaming finalize failed", "error", err)
 	}
-	return nil
+	return err
 }
 
 func (s *dingCardStream) MessageID() int {
