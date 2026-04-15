@@ -50,7 +50,8 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 		require := c.cfg.RequireMention
 		if require == nil || *require {
 			for _, user := range data.AtUsers {
-				if user.StaffId == data.ChatbotUserId {
+				if (user.StaffId != "" && user.StaffId == data.ChatbotUserId) ||
+					(user.DingtalkId != "" && user.DingtalkId == data.ChatbotUserId) {
 					wasMentioned = true
 					break
 				}
