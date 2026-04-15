@@ -78,16 +78,26 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 			// (new LLM iteration) resets the stream buffer.
 			// Stop the current stream (reasoning or answer) and finalize only
 			// the answer stream (reasoning messages stay visible).
+			//
+			// If no content was ever streamed (streamBuffer empty and no thinking),
+			// keep the stream alive so the next chunk iteration reuses it instead
+			// of creating a new one. This prevents orphaned "..." placeholder
+			// cards on DingTalk when the agent calls tools before producing text.
 			rc.mu.Lock()
 			currentStream := rc.stream
-			rc.stream = nil
+			hasStreamContent := rc.streamBuffer != "" || rc.hasThinking
+			if hasStreamContent {
+				rc.stream = nil
+			}
+			// else: keep rc.stream alive — no content was streamed yet (e.g. card
+			// only shows initial placeholder). The next chunk will reuse it.
 			rc.inToolPhase = true
 			rc.thinkingDone = false    // allow new thinking in next iteration
 			rc.thinkingBuffer = ""     // reset thinking buffer for new iteration
 			rc.hasThinking = false     // new iteration starts fresh
 			rc.tagParseSkipped = false // re-enable tag parsing for next iteration
 			rc.mu.Unlock()
-			if currentStream != nil {
+			if currentStream != nil && hasStreamContent {
 				if err := currentStream.Stop(ctx); err != nil {
 					slog.Debug("stream tool-phase stop failed", "channel", rc.ChannelName, "error", err)
 				}
@@ -118,8 +128,10 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 			content := extractPayloadString(payload, "content")
 			if content != "" {
 				rc.mu.Lock()
-				needNewStream := rc.inToolPhase
-				if needNewStream {
+				// Only create a new stream if the tool phase detached the previous one.
+				// When the stream was kept alive (no content before tool call), reuse it.
+				needNewStream := rc.inToolPhase && rc.stream == nil
+				if rc.inToolPhase {
 					rc.streamBuffer = ""
 					rc.inToolPhase = false
 				}
