@@ -224,6 +224,7 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 
 	metadata := map[string]string{
 		"msg_id":      data.MsgId,
+		"message_id":  data.MsgId,
 		"tenant_id":   data.ChatbotCorpId,
 		"msg_type":    data.Msgtype,
 		"sender_nick": data.SenderNick,

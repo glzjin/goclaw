@@ -80,5 +80,11 @@ func ResolveBackgroundProvider(
 		"tenant", tenantID, "provider", names[0], "available", names,
 		"background.provider", configs["background.provider"],
 		"agent.default_provider", configs["agent.default_provider"])
-	return p, p.DefaultModel()
+	model := p.DefaultModel()
+	if model == "" {
+		slog.Warn("background: fallback provider has no default model — skipping",
+			"tenant", tenantID, "provider", names[0])
+		return nil, ""
+	}
+	return p, model
 }
