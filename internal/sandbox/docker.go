@@ -281,6 +281,30 @@ func (m *DockerManager) Get(ctx context.Context, key string, workspace string, c
 		prefix = "goclaw-sbx-"
 	}
 	name := prefix + sanitizeKey(key)
+
+	// Adopt or remove orphaned container from a previous gateway run.
+	// After restart the in-memory map is empty but the Docker container
+	// may still exist, causing "container name already in use" on create.
+	if id, running := inspectExistingContainer(ctx, name); id != "" {
+		if running {
+			// Container is still healthy — adopt it instead of recreating.
+			slog.Info("sandbox: adopting orphaned container", "name", name, "id", id)
+			now := time.Now()
+			sb := &DockerSandbox{
+				containerID: id,
+				config:      cfg,
+				workspace:   workspace,
+				createdAt:   now,
+				lastUsed:    now,
+			}
+			m.sandboxes[key] = sb
+			return sb, nil
+		}
+		// Container exists but is stopped — remove before recreating.
+		slog.Info("sandbox: removing stopped orphan container", "name", name, "id", id)
+		_ = exec.CommandContext(ctx, "docker", "rm", "-f", id).Run()
+	}
+
 	sb, err := newDockerSandbox(ctx, name, cfg, workspace)
 	if err != nil {
 		return nil, err
@@ -444,6 +468,27 @@ func sanitizeKey(key string) string {
 		safe = safe[:50]
 	}
 	return safe
+}
+
+// inspectExistingContainer checks if a container with the given name already
+// exists (orphaned from a previous gateway run). Returns the 12-char container
+// ID and whether it is currently running.
+func inspectExistingContainer(ctx context.Context, name string) (id string, running bool) {
+	// docker inspect --format '{{.Id}} {{.State.Running}}' <name>
+	cmd := exec.CommandContext(ctx, "docker", "inspect", "--format", "{{.Id}} {{.State.Running}}", name)
+	out, err := cmd.Output()
+	if err != nil {
+		return "", false // container doesn't exist
+	}
+	parts := strings.Fields(strings.TrimSpace(string(out)))
+	if len(parts) < 2 {
+		return "", false
+	}
+	cid := parts[0]
+	if len(cid) > 12 {
+		cid = cid[:12]
+	}
+	return cid, parts[1] == "true"
 }
 
 // limitedBuffer is a bytes.Buffer that stops accepting writes after max bytes.
