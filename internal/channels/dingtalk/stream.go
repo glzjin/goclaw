@@ -62,9 +62,12 @@ func (c *Channel) CreateStream(ctx context.Context, chatID string, firstStream b
 		// ChatID is "group:<ConversationId>"
 		parts := strings.SplitN(chatID, ":", 2)
 		if len(parts) == 2 {
-			req.OpenSpaceId = tea.String(parts[1])
+			req.OpenSpaceId = tea.String("dtv1.card//IM_GROUP." + parts[1])
 			req.ImGroupOpenSpaceModel = &card_1_0.CreateAndDeliverRequestImGroupOpenSpaceModel{
 				SupportForward: tea.Bool(true),
+			}
+			req.ImGroupOpenDeliverModel = &card_1_0.CreateAndDeliverRequestImGroupOpenDeliverModel{
+				RobotCode: tea.String(c.cfg.ClientID),
 			}
 		}
 	} else {
