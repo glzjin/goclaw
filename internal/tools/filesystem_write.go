@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
 	"github.com/nextlevelbuilder/goclaw/internal/sandbox"
@@ -106,6 +107,24 @@ func (t *WriteFileTool) Execute(ctx context.Context, args map[string]any) *Resul
 	}
 	if path == "" {
 		return ErrorResult("path is required")
+	}
+
+	// MEDIA: redirect — when the agent writes a file whose entire content is just
+	// a "MEDIA:/path" reference, it's trying to deliver an existing file but doesn't
+	// know how. Instead of creating a useless .txt wrapper, deliver the referenced
+	// file directly. This transparently fixes the LLM behavioral pattern of
+	// write_file(path="deliver_X.txt", content="MEDIA:/workspace/X.zip", deliver=true).
+	if deliver {
+		if resolved, ok := t.resolveMediaContent(ctx, content); ok {
+			result := SilentResult(fmt.Sprintf("File delivered: %s (%d bytes). "+
+				"TIP: next time use the deliver_file tool to send existing files directly.",
+				filepath.Base(resolved), fileSize(resolved)))
+			result.Media = []bus.MediaFile{{Path: resolved}}
+			if dm := DeliveredMediaFromCtx(ctx); dm != nil {
+				dm.Mark(resolved)
+			}
+			return result
+		}
 	}
 
 	// Group write permission check
@@ -283,4 +302,65 @@ func (t *WriteFileTool) getFsBridge(ctx context.Context, sandboxKey string) (*sa
 		return nil, err
 	}
 	return sandbox.NewFsBridge(sb.ID(), sandbox.DefaultContainerWorkdir), nil
+}
+
+// resolveMediaContent checks if the content is just a MEDIA: path reference.
+// If so, it resolves the path against the workspace and returns the host path
+// of an existing file. Returns ("", false) if content is not a simple MEDIA: reference
+// or the referenced file doesn't exist.
+func (t *WriteFileTool) resolveMediaContent(ctx context.Context, content string) (string, bool) {
+	trimmed := strings.TrimSpace(content)
+	if !strings.HasPrefix(trimmed, "MEDIA:") {
+		return "", false
+	}
+	// Only match when content is essentially just the MEDIA: reference (may have
+	// trailing whitespace/newlines but no other significant text).
+	raw := strings.TrimSpace(trimmed[len("MEDIA:"):])
+	if raw == "" || strings.ContainsAny(raw, " \t\n") {
+		return "", false
+	}
+
+	workspace := ToolWorkspaceFromCtx(ctx)
+	if workspace == "" {
+		workspace = t.workspace
+	}
+
+	// Map container path /workspace/X → host path.
+	containerWorkdir := sandbox.DefaultContainerWorkdir
+	if strings.HasPrefix(raw, containerWorkdir+"/") {
+		rel := strings.TrimPrefix(raw, containerWorkdir+"/")
+		if rel == "" {
+			return "", false
+		}
+		// Try per-user workspace first, then base workspace.
+		candidate := filepath.Join(workspace, rel)
+		if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
+			return candidate, true
+		}
+		if workspace != t.workspace {
+			candidate = filepath.Join(t.workspace, rel)
+			if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
+				return candidate, true
+			}
+		}
+		return "", false
+	}
+
+	// Relative or absolute path — resolve normally.
+	resolved, err := resolvePath(raw, workspace, effectiveRestrict(ctx, t.restrict))
+	if err != nil {
+		return "", false
+	}
+	if info, err := os.Stat(resolved); err == nil && !info.IsDir() {
+		return resolved, true
+	}
+	return "", false
+}
+
+func fileSize(path string) int64 {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0
+	}
+	return info.Size()
 }
