@@ -69,6 +69,11 @@ func (r *Registry) SetScrubbing(enabled bool) {
 	r.scrubbing = enabled
 }
 
+// RateLimiter returns the current rate limiter (may be nil).
+func (r *Registry) RateLimiter() *ToolRateLimiter {
+	return r.rateLimiter
+}
+
 // Register adds a tool to the registry.
 func (r *Registry) Register(tool Tool) {
 	r.mu.Lock()

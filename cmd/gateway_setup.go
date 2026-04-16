@@ -149,9 +149,11 @@ func setupToolRegistry(
 		slog.Info("tts enabled", "provider", ttsMgr.PrimaryProvider(), "auto", string(ttsMgr.AutoMode()))
 	}
 
-	// Tool rate limiting (per session, sliding window)
+	// Tool rate limiting (per session, sliding window).
+	// Always create the limiter so config-reload subscribers can update it
+	// for existing sessions (cloned registries share the same pointer).
+	toolsReg.SetRateLimiter(tools.NewToolRateLimiter(cfg.Tools.RateLimitPerHour))
 	if cfg.Tools.RateLimitPerHour > 0 {
-		toolsReg.SetRateLimiter(tools.NewToolRateLimiter(cfg.Tools.RateLimitPerHour))
 		slog.Info("tool rate limiting enabled", "per_hour", cfg.Tools.RateLimitPerHour)
 	}
 

@@ -16,16 +16,28 @@ type ToolRateLimiter struct {
 }
 
 // NewToolRateLimiter creates a rate limiter with the given max actions per hour.
-// Pass 0 to disable rate limiting.
+// Pass 0 to disable rate limiting (Allow always succeeds).
 func NewToolRateLimiter(maxPerHour int) *ToolRateLimiter {
-	if maxPerHour <= 0 {
-		return nil
+	if maxPerHour < 0 {
+		maxPerHour = 0
 	}
 	return &ToolRateLimiter{
 		windows:  make(map[string][]time.Time),
 		maxPerHr: maxPerHour,
 		window:   time.Hour,
 	}
+}
+
+// UpdateLimit atomically updates the rate limit. Since all cloned registries
+// share the same *ToolRateLimiter pointer, this takes effect immediately
+// for both new and existing sessions. Pass 0 to disable limiting.
+func (rl *ToolRateLimiter) UpdateLimit(maxPerHour int) {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+	if maxPerHour < 0 {
+		maxPerHour = 0
+	}
+	rl.maxPerHr = maxPerHour
 }
 
 // Allow checks if a tool execution is allowed for the given key.
@@ -45,8 +57,11 @@ func (rl *ToolRateLimiter) Allow(key string) error {
 	}
 	entries = entries[start:]
 
-	if len(entries) >= rl.maxPerHr {
+	if rl.maxPerHr > 0 && len(entries) >= rl.maxPerHr {
 		return fmt.Errorf("tool rate limit exceeded: %d actions/hour for key %s", rl.maxPerHr, key)
+	}
+	if rl.maxPerHr <= 0 {
+		return nil // unlimited
 	}
 
 	// Record this action

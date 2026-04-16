@@ -106,6 +106,23 @@ func (d *gatewayDeps) runLifecycle(
 		slog.Info("tts config reloaded", "provider", newMgr.PrimaryProvider(), "auto", string(newMgr.AutoMode()))
 	})
 
+	// Reload tool rate limit on config changes via pub/sub.
+	// All cloned registries share the same *ToolRateLimiter pointer,
+	// so UpdateLimit() takes effect immediately for both new and existing sessions.
+	d.msgBus.Subscribe("tools-ratelimit-config-reload", func(evt bus.Event) {
+		if evt.Name != bus.TopicConfigChanged {
+			return
+		}
+		updatedCfg, ok := evt.Payload.(*config.Config)
+		if !ok {
+			return
+		}
+		if rl := d.toolsReg.RateLimiter(); rl != nil {
+			rl.UpdateLimit(updatedCfg.Tools.RateLimitPerHour)
+			slog.Info("tool rate limit reloaded", "per_hour", updatedCfg.Tools.RateLimitPerHour)
+		}
+	})
+
 	// Note: vault enrichment provider is resolved per-tenant at runtime,
 	// no hot-reload handler needed here
 
