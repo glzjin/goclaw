@@ -395,11 +395,13 @@ func (t *MessageTool) resolveMediaPath(ctx context.Context, s string) (string, b
 	}
 	restrict := effectiveRestrict(ctx, t.restrict)
 
-	// Sandbox path remapping: when the agent runs inside a sandbox container,
-	// it sees files under /workspace (the container workdir). The agent writes
-	// files relative to its sandbox cwd, which maps to the per-user workspace
-	// on the host. The agent typically references these as /workspace/<filename>,
-	// so map that to <per-user-workspace>/<filename>.
+	// Sandbox path remapping: the sandbox bind-mounts the GLOBAL workspace
+	// (t.workspace, e.g. /app/workspace) at /workspace inside the container.
+	// So container path /workspace/X == host path t.workspace/X.
+	// The agent may reference files with absolute container paths like
+	// /workspace/try_send.xlsx — map these to the host via the mount root.
+	// Also widen the security boundary to t.workspace since the sandbox
+	// gives the agent access to the entire mount.
 	containerWorkdir := sandbox.DefaultContainerWorkdir
 	if strings.HasPrefix(raw, containerWorkdir+"/") || raw == containerWorkdir {
 		rel := strings.TrimPrefix(raw, containerWorkdir)
@@ -407,7 +409,8 @@ func (t *MessageTool) resolveMediaPath(ctx context.Context, s string) (string, b
 		if rel == "" {
 			return "", false
 		}
-		raw = filepath.Join(workspace, rel)
+		raw = filepath.Join(t.workspace, rel)
+		workspace = t.workspace
 	}
 
 	// resolvePath handles relative→absolute, symlink, hardlink, boundary checks.
