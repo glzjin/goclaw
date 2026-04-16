@@ -45,6 +45,18 @@ func (l *Loop) finalizeRun(
 	// 5. Full sanitization pipeline (matching TS extractAssistantText + sanitizeUserFacingText)
 	rs.finalContent = SanitizeAssistantContent(rs.finalContent)
 
+	// 5a. Extract MEDIA: references from response text.
+	// Agents sometimes output "MEDIA:/workspace/file" in their response instead of
+	// using the message tool or write_file(deliver=true). Extract these into media
+	// results and strip from the text to prevent literal MEDIA: paths leaking to channels.
+	if strings.Contains(rs.finalContent, "MEDIA:") {
+		cleaned, respMedia := extractResponseMedia(rs.finalContent, l.workspace)
+		if len(respMedia) > 0 {
+			rs.finalContent = cleaned
+			rs.mediaResults = append(rs.mediaResults, respMedia...)
+		}
+	}
+
 	// 6. Handle NO_REPLY: save to session for context but mark as silent.
 	isSilent := IsSilentReply(rs.finalContent)
 
