@@ -24,6 +24,11 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 	}
 	slog.Info("dingtalk: received inbound raw stream payload", "sender", data.SenderId, "type", data.Msgtype, "content", data.Text.Content)
 
+	// Log raw content for non-text message types to aid debugging.
+	if data.Msgtype != "text" && data.Content != nil {
+		slog.Info("dingtalk: raw content payload", "type", data.Msgtype, "content", data.Content)
+	}
+
 	senderID := data.SenderStaffId
 	if senderID == "" {
 		senderID = data.SenderId
@@ -70,6 +75,26 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 	var extraContent string
 
 	isMedia := data.Msgtype == "picture" || data.Msgtype == "file" || data.Msgtype == "audio" || data.Msgtype == "video" || data.Msgtype == "richText"
+
+	// Extract text content from richText messages.
+	// DingTalk richText payload: {"richText": [{"text": "..."}, {"downloadCode": "..."}]}
+	if data.Msgtype == "richText" {
+		if contentMap, ok := data.Content.(map[string]interface{}); ok {
+			if richTextArr, ok := contentMap["richText"].([]interface{}); ok {
+				var textParts []string
+				for _, item := range richTextArr {
+					if rMap, ok := item.(map[string]interface{}); ok {
+						if txt, ok := rMap["text"].(string); ok && txt != "" {
+							textParts = append(textParts, txt)
+						}
+					}
+				}
+				if len(textParts) > 0 && content == "" {
+					content = strings.Join(textParts, "")
+				}
+			}
+		}
+	}
 
 	// Media downloaded immediately here if it has downloadCode
 	if isMedia {
