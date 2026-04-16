@@ -116,7 +116,12 @@ func mimeFromExt(ext string) string {
 // This prevents raw "MEDIA:/workspace/..." from leaking to channels when the
 // agent includes media references in its response text instead of delivering
 // files through the message tool or write_file(deliver=true).
-func extractResponseMedia(content, workspace string) (string, []MediaResult) {
+//
+// workspaces is an ordered list of candidate host directories (most specific first,
+// e.g. per-user workspace before base workspace). The function tries each one
+// when resolving container paths. If no candidate yields an existing file, the
+// first non-empty candidate is used as best-effort mapping.
+func extractResponseMedia(content string, workspaces ...string) (string, []MediaResult) {
 	if !strings.Contains(content, "MEDIA:") {
 		return content, nil
 	}
@@ -141,20 +146,43 @@ func extractResponseMedia(content, workspace string) (string, []MediaResult) {
 				continue
 			}
 
-			// Map container path /workspace/X → workspace/X on host.
-			if workspace != "" && (strings.HasPrefix(path, containerWorkdir+"/") || path == containerWorkdir) {
-				rel := strings.TrimPrefix(path, containerWorkdir)
-				rel = strings.TrimPrefix(rel, "/")
-				if rel != "" {
-					path = filepath.Join(workspace, rel)
-				}
+			// Extract relative portion from container path.
+			rel := ""
+			if strings.HasPrefix(path, containerWorkdir+"/") {
+				rel = strings.TrimPrefix(path, containerWorkdir+"/")
 			}
 
-			// Verify file exists before adding as media result.
-			if _, err := os.Stat(path); err == nil {
+			// Try each workspace candidate to find the file on host.
+			resolved := ""
+			if rel != "" {
+				for _, ws := range workspaces {
+					if ws == "" {
+						continue
+					}
+					candidate := filepath.Join(ws, rel)
+					if _, err := os.Stat(candidate); err == nil {
+						resolved = candidate
+						break
+					}
+				}
+				// Best-effort: use first non-empty workspace if file not found.
+				if resolved == "" {
+					for _, ws := range workspaces {
+						if ws != "" {
+							resolved = filepath.Join(ws, rel)
+							break
+						}
+					}
+				}
+			} else if _, err := os.Stat(path); err == nil {
+				// Absolute non-container path that exists.
+				resolved = path
+			}
+
+			if resolved != "" {
 				media = append(media, MediaResult{
-					Path:        path,
-					ContentType: mimeFromExt(filepath.Ext(path)),
+					Path:        resolved,
+					ContentType: mimeFromExt(filepath.Ext(resolved)),
 				})
 			}
 		}

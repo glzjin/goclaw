@@ -13,6 +13,7 @@ import (
 	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/providers"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
+	"github.com/nextlevelbuilder/goclaw/internal/tools"
 )
 
 // isUserFilePopulated checks if USER.md has been filled with actual user data
@@ -50,9 +51,12 @@ func (l *Loop) finalizeRun(
 	// using the message tool or write_file(deliver=true). Extract these into media
 	// results and strip from the text to prevent literal MEDIA: paths leaking to channels.
 	if strings.Contains(rs.finalContent, "MEDIA:") {
-		cleaned, respMedia := extractResponseMedia(rs.finalContent, l.workspace)
+		// Try per-user effective workspace first (most likely location for sandbox files),
+		// then fall back to the agent's base workspace.
+		effectiveWS := tools.ToolWorkspaceFromCtx(ctx)
+		cleaned, respMedia := extractResponseMedia(rs.finalContent, effectiveWS, l.workspace)
+		rs.finalContent = cleaned
 		if len(respMedia) > 0 {
-			rs.finalContent = cleaned
 			rs.mediaResults = append(rs.mediaResults, respMedia...)
 		}
 	}

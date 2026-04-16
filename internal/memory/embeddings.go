@@ -172,7 +172,43 @@ func (p *OpenAIEmbeddingProvider) WithDimensions(d int) *OpenAIEmbeddingProvider
 func (p *OpenAIEmbeddingProvider) Name() string  { return p.name }
 func (p *OpenAIEmbeddingProvider) Model() string { return p.model }
 
+// embeddingBatchSizeDefault is the default max batch size for embedding APIs.
+const embeddingBatchSizeDefault = 2048
+
+// embeddingBatchSizeDashScope is the max batch size for DashScope/Bailian APIs.
+// DashScope returns HTTP 400 when input exceeds 10 items.
+const embeddingBatchSizeDashScope = 10
+
 func (p *OpenAIEmbeddingProvider) Embed(ctx context.Context, texts []string) ([][]float32, error) {
+	if len(texts) == 0 {
+		return nil, nil
+	}
+
+	// DashScope/Bailian APIs reject batches larger than 10.
+	batchSize := embeddingBatchSizeDefault
+	if strings.Contains(p.apiURL, "dashscope") {
+		batchSize = embeddingBatchSizeDashScope
+	}
+
+	results := make([][]float32, len(texts))
+
+	for start := 0; start < len(texts); start += batchSize {
+		end := min(start+batchSize, len(texts))
+
+		embeddings, err := p.embedBatch(ctx, texts[start:end])
+		if err != nil {
+			return nil, fmt.Errorf("embedding batch [%d:%d]: %w", start, end, err)
+		}
+
+		for i, emb := range embeddings {
+			results[start+i] = emb
+		}
+	}
+
+	return results, nil
+}
+
+func (p *OpenAIEmbeddingProvider) embedBatch(ctx context.Context, texts []string) ([][]float32, error) {
 	reqBody := map[string]any{
 		"input": texts,
 		"model": p.model,
