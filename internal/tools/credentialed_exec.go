@@ -269,9 +269,18 @@ func (t *ExecTool) executeCredentialedSandbox(ctx context.Context, absPath strin
 		return ErrorResult("credentialed exec requires sandbox but sandbox is unavailable: " + err.Error())
 	}
 
+	// Map host workspace path to container path (same as executeInSandbox).
+	containerCwd, cwdErr := SandboxCwd(ctx, t.workspace, sandbox.DefaultContainerWorkdir)
+	if cwdErr != nil {
+		return ErrorResult(fmt.Sprintf("sandbox path mapping: %v", cwdErr))
+	}
+	if cwd != "" {
+		containerCwd = ResolveSandboxPath(cwd, containerCwd)
+	}
+
 	// Direct exec inside sandbox: [absPath, args...] with env injection
 	command := append([]string{absPath}, args...)
-	result, err := sb.Exec(ctx, command, cwd, sandbox.WithEnv(envMap))
+	result, err := sb.Exec(ctx, command, containerCwd, sandbox.WithEnv(envMap))
 	if err != nil {
 		return ErrorResult(fmt.Sprintf("credentialed sandbox exec: %v", err))
 	}
