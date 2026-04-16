@@ -378,6 +378,13 @@ func (t *ExecTool) executeInSandbox(ctx context.Context, command, cwd, sandboxKe
 		containerCwd = ResolveSandboxPath(cwd, containerCwd)
 	}
 
+	// Ensure the per-user cwd directory exists inside the container.
+	// The sandbox mounts the global workspace; per-user subdirectories
+	// may not exist yet (especially for adopted orphan containers).
+	if containerCwd != sandbox.DefaultContainerWorkdir {
+		_, _ = sb.Exec(ctx, []string{"mkdir", "-p", containerCwd}, "")
+	}
+
 	result, err := sb.Exec(ctx, []string{"sh", "-c", command}, containerCwd) //nolint: no ExecOption for normal exec
 	if err != nil {
 		return ErrorResult(fmt.Sprintf("sandbox exec: %v", err))

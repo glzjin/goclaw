@@ -278,6 +278,11 @@ func (t *ExecTool) executeCredentialedSandbox(ctx context.Context, absPath strin
 		containerCwd = ResolveSandboxPath(cwd, containerCwd)
 	}
 
+	// Ensure the per-user cwd directory exists inside the container.
+	if containerCwd != sandbox.DefaultContainerWorkdir {
+		_, _ = sb.Exec(ctx, []string{"mkdir", "-p", containerCwd}, "")
+	}
+
 	// Direct exec inside sandbox: [absPath, args...] with env injection
 	command := append([]string{absPath}, args...)
 	result, err := sb.Exec(ctx, command, containerCwd, sandbox.WithEnv(envMap))
