@@ -133,6 +133,24 @@ func (c *Channel) uploadMedia(ctx context.Context, token, filePath, mediaType st
 	return result.MediaID, nil
 }
 
+// uploadMediaWithRetry wraps uploadMedia with a simple retry for transient errors
+// (EOF, connection reset). DingTalk's media upload API occasionally drops connections.
+func (c *Channel) uploadMediaWithRetry(ctx context.Context, token, filePath, mediaType string) (string, error) {
+	const maxRetries = 2
+	var lastErr error
+	for attempt := range maxRetries + 1 {
+		mediaID, err := c.uploadMedia(ctx, token, filePath, mediaType)
+		if err == nil {
+			return mediaID, nil
+		}
+		lastErr = err
+		if attempt < maxRetries {
+			slog.Warn("dingtalk: upload media retrying", "attempt", attempt+1, "err", err, "path", filePath)
+		}
+	}
+	return "", lastErr
+}
+
 // Send delivers an outbound message to the channel via the DingTalk Robot OpenAPI.
 func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 	token, err := c.getAccessToken()
@@ -159,7 +177,7 @@ func (c *Channel) Send(ctx context.Context, msg bus.OutboundMessage) error {
 			mediaType = "voice"
 		}
 
-		mediaId, err := c.uploadMedia(ctx, token, m.URL, mediaType)
+		mediaId, err := c.uploadMediaWithRetry(ctx, token, m.URL, mediaType)
 		if err != nil {
 			slog.Error("dingtalk: failed to upload media", "err", err, "path", m.URL)
 			continue

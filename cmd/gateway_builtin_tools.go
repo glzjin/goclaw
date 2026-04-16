@@ -17,6 +17,7 @@ func builtinToolSeedData() []store.BuiltinToolDef {
 		// filesystem
 		{Name: "read_file", DisplayName: "Read File", Description: "Read the contents of a file from the agent's workspace by path", Category: "filesystem", Enabled: true},
 		{Name: "write_file", DisplayName: "Write File", Description: "Write content to a file in the workspace, creating directories as needed", Category: "filesystem", Enabled: true},
+		{Name: "deliver_file", DisplayName: "Deliver File", Description: "Deliver an existing file from the workspace to the user as an attachment (zip, pdf, image, etc.)", Category: "filesystem", Enabled: true},
 		{Name: "list_files", DisplayName: "List Files", Description: "List files and directories in a given path within the workspace", Category: "filesystem", Enabled: true},
 		{Name: "edit", DisplayName: "Edit File", Description: "Apply targeted search-and-replace edits to existing files without rewriting the entire file", Category: "filesystem", Enabled: true},
 

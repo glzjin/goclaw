@@ -201,11 +201,13 @@ func setupSubagents(providerReg *providers.Registry, cfg *config.Config, msgBus 
 		if sandboxMgr != nil {
 			reg.Register(tools.NewSandboxedReadFileTool(workspace, agentCfg.RestrictToWorkspace, sandboxMgr))
 			reg.Register(tools.NewSandboxedWriteFileTool(workspace, agentCfg.RestrictToWorkspace, sandboxMgr))
+			reg.Register(tools.NewSandboxedDeliverFileTool(workspace, agentCfg.RestrictToWorkspace, sandboxMgr))
 			reg.Register(tools.NewSandboxedListFilesTool(workspace, agentCfg.RestrictToWorkspace, sandboxMgr))
 			reg.Register(tools.NewSandboxedExecTool(workspace, agentCfg.RestrictToWorkspace, sandboxMgr))
 		} else {
 			reg.Register(tools.NewReadFileTool(workspace, agentCfg.RestrictToWorkspace))
 			reg.Register(tools.NewWriteFileTool(workspace, agentCfg.RestrictToWorkspace))
+			reg.Register(tools.NewDeliverFileTool(workspace, agentCfg.RestrictToWorkspace))
 			reg.Register(tools.NewListFilesTool(workspace, agentCfg.RestrictToWorkspace))
 			reg.Register(tools.NewExecTool(workspace, agentCfg.RestrictToWorkspace))
 		}
