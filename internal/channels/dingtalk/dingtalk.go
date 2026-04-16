@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	dingtalkoauth2_1_0 "github.com/alibabacloud-go/dingtalk/oauth2_1_0"
@@ -33,6 +34,7 @@ type Channel struct {
 	pairingDebounce sync.Map // senderID → time.Time
 	approvedGroups  sync.Map // chatID → bool
 	streamDedup     sync.Map // outTrackID/chatID → bool
+	inboundDedup    sync.Map // msgId → struct{} — prevents duplicate processing on DingTalk retries
 
 	mu      sync.Mutex
 	running bool
@@ -100,9 +102,10 @@ func (c *Channel) Start(ctx context.Context) error {
 	)
 	c.streamCli = streamCli
 
-	// Register ChatBot callback
+	// Register ChatBot callback.
+	// Return ack immediately so DingTalk doesn't retry; process async.
 	streamCli.RegisterChatBotCallbackRouter(func(ctx context.Context, data *chatbot.BotCallbackDataModel) ([]byte, error) {
-		c.handleInboundData(data)
+		go c.handleInboundData(data)
 		return []byte("{}"), nil
 	})
 
@@ -110,6 +113,23 @@ func (c *Channel) Start(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to start dingtalk stream: %w", err)
 	}
+
+	// Periodic cleanup of inbound dedup map (entries older than 2 minutes are stale).
+	go func() {
+		ticker := time.NewTicker(2 * time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-runCtx.Done():
+				return
+			case <-ticker.C:
+				c.inboundDedup.Range(func(key, _ any) bool {
+					c.inboundDedup.Delete(key)
+					return true
+				})
+			}
+		}
+	}()
 
 	c.MarkHealthy("Stream connected")
 	return nil

@@ -11,7 +11,11 @@ import (
 	"time"
 )
 
-const embeddingBatchSize = 2048
+const embeddingBatchSizeDefault = 2048
+
+// embeddingBatchSizeDashScope is the max batch size for DashScope/Bailian APIs.
+// DashScope returns HTTP 400 when input.contents exceeds 10 items.
+const embeddingBatchSizeDashScope = 10
 
 // ExpectedEmbeddingDim is the pgvector column dimension used across the system.
 // All embedding providers must return vectors of this dimension.
@@ -57,9 +61,15 @@ func (p *OpenAIEmbeddingProvider) Embed(ctx context.Context, texts []string) ([]
 
 	results := make([][]float32, len(texts))
 
-	// Process in batches of embeddingBatchSize
-	for start := 0; start < len(texts); start += embeddingBatchSize {
-		end := min(start+embeddingBatchSize, len(texts))
+	// DashScope/Bailian APIs reject batches larger than 10.
+	batchSize := embeddingBatchSizeDefault
+	if strings.Contains(p.apiBase, "dashscope") {
+		batchSize = embeddingBatchSizeDashScope
+	}
+
+	// Process in batches
+	for start := 0; start < len(texts); start += batchSize {
+		end := min(start+batchSize, len(texts))
 
 		embeddings, err := p.embedBatch(ctx, texts[start:end])
 		if err != nil {

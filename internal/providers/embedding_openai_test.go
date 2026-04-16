@@ -91,11 +91,11 @@ func TestOpenAIEmbedding_BatchSplitting(t *testing.T) {
 
 		// Verify batch size constraints
 		if callCount == 1 {
-			if len(inputs) != embeddingBatchSize {
-				t.Fatalf("batch 1: expected %d inputs, got %d", embeddingBatchSize, len(inputs))
+			if len(inputs) != embeddingBatchSizeDefault {
+				t.Fatalf("batch 1: expected %d inputs, got %d", embeddingBatchSizeDefault, len(inputs))
 			}
 		} else if callCount == 2 {
-			expectedLen := 3000 - embeddingBatchSize // remainder
+			expectedLen := 3000 - embeddingBatchSizeDefault // remainder
 			if len(inputs) != expectedLen {
 				t.Fatalf("batch 2: expected %d inputs, got %d", expectedLen, len(inputs))
 			}
@@ -570,10 +570,10 @@ func TestOpenAIEmbedding_BatchBoundary(t *testing.T) {
 		expectedCalls int
 	}{
 		{"single", 1, 1},
-		{"batch size", embeddingBatchSize, 1},
-		{"batch size + 1", embeddingBatchSize + 1, 2},
-		{"double batch", embeddingBatchSize * 2, 2},
-		{"double batch + 1", embeddingBatchSize*2 + 1, 3},
+		{"batch size", embeddingBatchSizeDefault, 1},
+		{"batch size + 1", embeddingBatchSizeDefault + 1, 2},
+		{"double batch", embeddingBatchSizeDefault * 2, 2},
+		{"double batch + 1", embeddingBatchSizeDefault*2 + 1, 3},
 	}
 
 	for _, tt := range tests {

@@ -22,6 +22,16 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 		slog.Warn("dingtalk: received nil callback data")
 		return
 	}
+
+	// Dedup: DingTalk retries delivery if the stream callback was slow to ack.
+	// Use MsgId to skip messages we've already started processing.
+	if data.MsgId != "" {
+		if _, loaded := c.inboundDedup.LoadOrStore(data.MsgId, struct{}{}); loaded {
+			slog.Debug("dingtalk: skipping duplicate inbound message", "msg_id", data.MsgId)
+			return
+		}
+	}
+
 	slog.Info("dingtalk: received inbound raw stream payload", "sender", data.SenderId, "type", data.Msgtype, "content", data.Text.Content)
 
 	// Log raw content for non-text message types to aid debugging.
