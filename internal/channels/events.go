@@ -123,6 +123,32 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 					Metadata: outMeta,
 				})
 			}
+
+			// Show tool status in streaming card so users see activity
+			// instead of empty dark placeholder cards.
+			if toolName != "" && rc.Streaming && sc != nil {
+				statusText := formatToolStatus(toolName)
+				rc.mu.Lock()
+				currentStream = rc.stream
+				if currentStream == nil {
+					// Previous card was finalized — create a new one for tool status.
+					rc.mu.Unlock()
+					stream, err := sc.CreateStream(ctx, rc.ChatID, false)
+					if err != nil {
+						slog.Debug("stream tool-status create failed", "channel", rc.ChannelName, "error", err)
+					} else {
+						rc.mu.Lock()
+						rc.stream = stream
+						currentStream = stream
+						rc.mu.Unlock()
+					}
+				} else {
+					rc.mu.Unlock()
+				}
+				if currentStream != nil {
+					currentStream.Update(ctx, statusText)
+				}
+			}
 		case protocol.ChatEventChunk:
 			// Accumulate chunk deltas into full text.
 			content := extractPayloadString(payload, "content")
@@ -406,6 +432,7 @@ var toolStatusMap = map[string]string{
 	"create_video":  "🎬 Creating video...",
 	"create_audio":  "🎵 Creating audio...",
 	"tts":           "🔊 Generating speech...",
+	"deliver_file":  "📤 Sending file...",
 	// Browser
 	"browser": "🌐 Browsing...",
 	// Delegation & teams
