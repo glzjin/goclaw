@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
+	"github.com/nextlevelbuilder/goclaw/internal/sandbox"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
 
@@ -393,6 +394,19 @@ func (t *MessageTool) resolveMediaPath(ctx context.Context, s string) (string, b
 		workspace = t.workspace
 	}
 	restrict := effectiveRestrict(ctx, t.restrict)
+
+	// Sandbox path remapping: when the agent runs inside a sandbox container,
+	// it sees files under /workspace (the container workdir). Map these back
+	// to the host workspace so the security check and file access succeed.
+	containerWorkdir := sandbox.DefaultContainerWorkdir
+	if strings.HasPrefix(raw, containerWorkdir+"/") || raw == containerWorkdir {
+		rel := strings.TrimPrefix(raw, containerWorkdir)
+		rel = strings.TrimPrefix(rel, "/")
+		if rel == "" {
+			return "", false
+		}
+		raw = filepath.Join(workspace, rel)
+	}
 
 	// resolvePath handles relative→absolute, symlink, hardlink, boundary checks.
 	resolved, err := resolvePath(raw, workspace, restrict)
