@@ -57,6 +57,13 @@ func CheckFileWriterPermission(ctx context.Context, permStore ConfigPermissionSt
 	if !strings.HasPrefix(userID, "group:") && !strings.HasPrefix(userID, "guild:") {
 		return nil // not a group context
 	}
+	// Skip writer check for channels that don't implement /addwriter commands.
+	// Currently only Telegram and Feishu support writer management.
+	// Group userIDs follow the pattern "group:<channel>:..." (e.g. "group:dingtalk:group:...").
+	if !strings.HasPrefix(userID, "group:telegram:") && !strings.HasPrefix(userID, "group:feishu:") &&
+		!strings.HasPrefix(userID, "guild:") {
+		return nil
+	}
 	agentID := AgentIDFromContext(ctx)
 	if agentID == uuid.Nil {
 		return nil // no agent context
@@ -86,6 +93,11 @@ func CheckCronPermission(ctx context.Context, permStore ConfigPermissionStore) e
 	userID := UserIDFromContext(ctx)
 	if !strings.HasPrefix(userID, "group:") && !strings.HasPrefix(userID, "guild:") {
 		return nil // not a group context
+	}
+	// Skip for channels without /addwriter support (same as CheckFileWriterPermission).
+	if !strings.HasPrefix(userID, "group:telegram:") && !strings.HasPrefix(userID, "group:feishu:") &&
+		!strings.HasPrefix(userID, "guild:") {
+		return nil
 	}
 	agentID := AgentIDFromContext(ctx)
 	if agentID == uuid.Nil {
