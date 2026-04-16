@@ -219,14 +219,16 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 			histContent = "[empty message]"
 		}
 
-		c.GroupHistory().Record(chatID, channels.HistoryEntry{
-			Sender:    senderLabel,
-			SenderID:  senderID,
-			Body:      histContent,
-			MediaRefs: nil,
-			Timestamp: time.UnixMilli(data.CreateAt),
-			MessageID: data.MsgId,
-		}, c.HistoryLimit())
+		if gh := c.GroupHistory(); gh != nil {
+			gh.Record(chatID, channels.HistoryEntry{
+				Sender:    senderLabel,
+				SenderID:  senderID,
+				Body:      histContent,
+				MediaRefs: nil,
+				Timestamp: time.UnixMilli(data.CreateAt),
+				MessageID: data.MsgId,
+			}, c.HistoryLimit())
+		}
 
 		slog.Debug("dingtalk: recorded unmentioned group message", "chat", chatID, "sender", senderLabel)
 
@@ -249,7 +251,11 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 	if isGroup {
 		annotated := "[From: " + senderLabel + "]\n" + finalContent
 		if c.HistoryLimit() > 0 {
-			finalContent = c.GroupHistory().BuildContext(chatID, annotated, c.HistoryLimit())
+			if gh := c.GroupHistory(); gh != nil {
+				finalContent = gh.BuildContext(chatID, annotated, c.HistoryLimit())
+			} else {
+				finalContent = annotated
+			}
 		} else {
 			finalContent = annotated
 		}
@@ -309,6 +315,8 @@ func (c *Channel) handleInboundData(data *chatbot.BotCallbackDataModel) {
 
 	// Clear history after publishing
 	if isGroup {
-		c.GroupHistory().Clear(chatID)
+		if gh := c.GroupHistory(); gh != nil {
+			gh.Clear(chatID)
+		}
 	}
 }
