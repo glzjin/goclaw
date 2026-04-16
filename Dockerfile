@@ -8,7 +8,7 @@ ARG ENABLE_EMBEDUI=false
 # BuildKit skips this stage entirely when ENABLE_EMBEDUI=false
 # because no downstream stage in the dependency graph references it.
 FROM node:22-alpine AS web-builder
-RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
+RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 WORKDIR /app
 # Copy .npmrc first so pnpm resolves musl native bindings (needed on Alpine).
 # The lockfile already includes musl entries thanks to supportedArchitectures in .npmrc.
