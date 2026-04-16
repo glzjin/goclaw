@@ -157,18 +157,30 @@ func (s *dingCardStream) Update(ctx context.Context, text string) {
 }
 
 // flush does the actual HTTP call. Caller must hold mu.
+// Uses incremental append mode (IsFull=false) to send only new content
+// since the last successful update. This avoids the rendering flicker
+// that occurs when DingTalk replaces the entire card on each update.
 func (s *dingCardStream) flush(ctx context.Context) {
 	if s.pending == "" || s.pending == s.lastText {
 		return
 	}
 	text := s.pending
 
+	// Compute delta: only send content added since last successful update.
+	delta := text
+	if len(s.lastText) < len(text) {
+		delta = text[len(s.lastText):]
+	}
+	if delta == "" {
+		return
+	}
+
 	req := &card_1_0.StreamingUpdateRequest{
 		OutTrackId: tea.String(s.outTrackID),
 		Guid:       tea.String(uuid.New().String()),
 		Key:        tea.String("content"),
-		Content:    tea.String(text),
-		IsFull:     tea.Bool(true),
+		Content:    tea.String(delta),
+		IsFull:     tea.Bool(false),
 		IsFinalize: tea.Bool(false),
 	}
 
