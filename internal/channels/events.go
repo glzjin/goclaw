@@ -42,22 +42,16 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 	if sc, ok := ch.(StreamingChannel); ok && rc.Streaming {
 		switch eventType {
 		case protocol.AgentEventRunStarted:
-			stream, err := sc.CreateStream(ctx, rc.ChatID, true)
-			if err != nil {
-				slog.Error("stream start failed", "channel", rc.ChannelName, "error", err)
-			} else {
-				rc.mu.Lock()
-				rc.stream = stream
-				rc.mu.Unlock()
-			}
+			// Defer stream creation — the first content event (thinking,
+			// tool.call, or chunk) will lazily create the stream card.
+			// This avoids a placeholder "..." card on DingTalk that stays
+			// empty when the agent only executes tools before producing text.
 		case protocol.ChatEventThinking:
 			// Accumulate thinking/reasoning content and route to the current stream.
-			// The stream created on run.started becomes the "reasoning lane":
-			//  - DMs: edits the "Thinking..." placeholder with reasoning text
-			//  - Groups: edits a fresh message with reasoning text
+			// Lazily creates the reasoning stream on first thinking event.
 			// When the first chunk arrives, this stream is stopped (reasoning message stays
 			// visible) and a new stream is created for the answer lane.
-			// Gated by ReasoningStreamEnabled() — channels can opt out (e.g. Slack).
+			// Gated by ReasoningStreamEnabled() — channels can opt out (e.g. Slack, DingTalk).
 			if !sc.ReasoningStreamEnabled() {
 				break
 			}
@@ -68,10 +62,20 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 				rc.hasThinking = true
 				thinkText := rc.thinkingBuffer
 				currentStream := rc.stream
-				rc.mu.Unlock()
-				if currentStream != nil {
-					currentStream.Update(ctx, formatReasoningPreview(thinkText))
+				if currentStream == nil {
+					rc.mu.Unlock()
+					stream, err := sc.CreateStream(ctx, rc.ChatID, true)
+					if err != nil {
+						slog.Error("stream start failed (thinking)", "channel", rc.ChannelName, "error", err)
+						break
+					}
+					rc.mu.Lock()
+					rc.stream = stream
+					rc.streamCreated = true
+					currentStream = stream
 				}
+				rc.mu.Unlock()
+				currentStream.Update(ctx, formatReasoningPreview(thinkText))
 			}
 		case protocol.AgentEventToolCall:
 			// Agent is executing a tool — mark tool phase so the next chunk
@@ -138,9 +142,11 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 				fullStatus := rc.streamBuffer
 				currentStream = rc.stream
 				if currentStream == nil {
-					// Previous card was finalized — create a new one for tool status.
+					// No stream yet — lazily create one for tool status.
+					isFirst := !rc.streamCreated
+					rc.streamCreated = true
 					rc.mu.Unlock()
-					stream, err := sc.CreateStream(ctx, rc.ChatID, false)
+					stream, err := sc.CreateStream(ctx, rc.ChatID, isFirst)
 					if err != nil {
 						slog.Debug("stream tool-status create failed", "channel", rc.ChannelName, "error", err)
 					} else {
@@ -176,6 +182,12 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 					}
 					rc.inToolPhase = false
 					rc.toolStatusOnly = false
+				}
+
+				// Lazy stream creation: first chunk with no prior stream
+				// (deferred from run.started to avoid empty placeholder cards).
+				if rc.stream == nil && !needNewStream {
+					needNewStream = true
 				}
 
 				// Fallback <think> tag parsing: for providers that embed thinking
@@ -254,7 +266,11 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 
 				// Create fresh stream for answer (or new tool iteration)
 				if needNewStream || needTransition {
-					stream, err := sc.CreateStream(ctx, rc.ChatID, false)
+					rc.mu.Lock()
+					isFirst := !rc.streamCreated
+					rc.streamCreated = true
+					rc.mu.Unlock()
+					stream, err := sc.CreateStream(ctx, rc.ChatID, isFirst)
 					if err != nil {
 						slog.Debug("stream restart failed", "channel", rc.ChannelName, "error", err)
 					} else {
