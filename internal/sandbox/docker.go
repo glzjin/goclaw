@@ -461,8 +461,17 @@ func sanitizeKey(key string) string {
 		":", "-",
 		"/", "-",
 		" ", "-",
-		".", "-",
 	).Replace(key)
+
+	// Docker container names only allow [a-zA-Z0-9_.-].
+	// Strip any remaining invalid characters.
+	var b strings.Builder
+	for _, r := range safe {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '.' || r == '-' {
+			b.WriteRune(r)
+		}
+	}
+	safe = b.String()
 
 	if len(safe) > 50 {
 		safe = safe[:50]
