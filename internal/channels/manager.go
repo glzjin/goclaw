@@ -38,6 +38,7 @@ type RunContext struct {
 	mu                sync.Mutex
 	streamBuffer      string        // accumulated streaming text (chunks are deltas)
 	inToolPhase       bool          // true after tool.call, reset on next chunk (new LLM iteration)
+	toolStatusOnly    bool          // stream shows tool status log, not LLM text
 	stream            ChannelStream // per-run stream handle (replaces per-chat sync.Map in channel impls)
 	thinkingBuffer    string        // accumulated thinking/reasoning text
 	hasThinking       bool          // true if any thinking events received this iteration

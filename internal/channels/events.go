@@ -85,7 +85,7 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 			// cards on DingTalk when the agent calls tools before producing text.
 			rc.mu.Lock()
 			currentStream := rc.stream
-			hasStreamContent := rc.streamBuffer != "" || rc.hasThinking
+			hasStreamContent := (rc.streamBuffer != "" && !rc.toolStatusOnly) || rc.hasThinking
 			if hasStreamContent {
 				rc.stream = nil
 			}
@@ -124,11 +124,18 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 				})
 			}
 
-			// Show tool status in streaming card so users see activity
-			// instead of empty dark placeholder cards.
+			// Show tool status in streaming card. Accumulate tool names so
+			// the card shows all tools called (persists after finalization).
 			if toolName != "" && rc.Streaming && sc != nil {
 				statusText := formatToolStatus(toolName)
 				rc.mu.Lock()
+				if rc.toolStatusOnly {
+					rc.streamBuffer += statusText + "\n"
+				} else {
+					rc.streamBuffer = statusText + "\n"
+				}
+				rc.toolStatusOnly = true
+				fullStatus := rc.streamBuffer
 				currentStream = rc.stream
 				if currentStream == nil {
 					// Previous card was finalized — create a new one for tool status.
@@ -146,7 +153,7 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 					rc.mu.Unlock()
 				}
 				if currentStream != nil {
-					currentStream.Update(ctx, statusText)
+					currentStream.Update(ctx, fullStatus)
 				}
 			}
 		case protocol.ChatEventChunk:
@@ -154,12 +161,20 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 			content := extractPayloadString(payload, "content")
 			if content != "" {
 				rc.mu.Lock()
-				// Only create a new stream if the tool phase detached the previous one.
-				// When the stream was kept alive (no content before tool call), reuse it.
+				// Create a new stream when transitioning from tool phase to text.
+				// If the current stream shows tool status, finalize it (keeps
+				// tool log visible) and start a fresh card for response text.
 				needNewStream := rc.inToolPhase && rc.stream == nil
+				var toolStream ChannelStream
+				if rc.inToolPhase && rc.toolStatusOnly && rc.stream != nil {
+					toolStream = rc.stream
+					rc.stream = nil
+					needNewStream = true
+				}
 				if rc.inToolPhase {
 					rc.streamBuffer = ""
 					rc.inToolPhase = false
+					rc.toolStatusOnly = false
 				}
 
 				// Fallback <think> tag parsing: for providers that embed thinking
@@ -228,6 +243,11 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 				}
 				reasoningStream := rc.stream
 				rc.mu.Unlock()
+
+				// Finalize tool-status stream (preserves tool log as card content)
+				if toolStream != nil {
+					_ = toolStream.Stop(ctx)
+				}
 
 				// Finalize reasoning stream (stop editing, keep message)
 				if needTransition && reasoningStream != nil {
