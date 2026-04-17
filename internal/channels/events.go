@@ -161,18 +161,19 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 			content := extractPayloadString(payload, "content")
 			if content != "" {
 				rc.mu.Lock()
-				// Create a new stream when transitioning from tool phase to text.
-				// If the current stream shows tool status, finalize it (keeps
-				// tool log visible) and start a fresh card for response text.
+				// Transition from tool phase to text streaming.
+				// When the current card shows tool status, keep it alive and
+				// append response text below the status lines (same card).
+				// This avoids orphan empty cards when the model emits tiny
+				// whitespace chunks between tool iterations.
 				needNewStream := rc.inToolPhase && rc.stream == nil
-				var toolStream ChannelStream
-				if rc.inToolPhase && rc.toolStatusOnly && rc.stream != nil {
-					toolStream = rc.stream
-					rc.stream = nil
-					needNewStream = true
-				}
 				if rc.inToolPhase {
-					rc.streamBuffer = ""
+					if rc.toolStatusOnly && rc.stream != nil {
+						// Keep tool-status card — text will appear below status.
+						rc.streamBuffer += "\n"
+					} else {
+						rc.streamBuffer = ""
+					}
 					rc.inToolPhase = false
 					rc.toolStatusOnly = false
 				}
@@ -243,11 +244,6 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 				}
 				reasoningStream := rc.stream
 				rc.mu.Unlock()
-
-				// Finalize tool-status stream (preserves tool log as card content)
-				if toolStream != nil {
-					_ = toolStream.Stop(ctx)
-				}
 
 				// Finalize reasoning stream (stop editing, keep message)
 				if needTransition && reasoningStream != nil {
