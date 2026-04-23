@@ -317,6 +317,7 @@ type WorkspaceSharingConfig struct {
 	SharedUsers         []string `json:"shared_users,omitempty" db:"-"`
 	ShareMemory         bool     `json:"share_memory" db:"-"`
 	ShareKnowledgeGraph bool     `json:"share_knowledge_graph" db:"-"`
+	ShareSessions       bool     `json:"share_sessions" db:"-"`
 }
 
 const (
@@ -406,7 +407,7 @@ func (a *AgentData) ParseWorkspaceSharing() *WorkspaceSharingConfig {
 	if json.Unmarshal(a.WorkspaceSharing, &ws) != nil {
 		return nil
 	}
-	if !ws.SharedDM && !ws.SharedGroup && len(ws.SharedUsers) == 0 && !ws.ShareMemory && !ws.ShareKnowledgeGraph {
+	if !ws.SharedDM && !ws.SharedGroup && len(ws.SharedUsers) == 0 && !ws.ShareMemory && !ws.ShareKnowledgeGraph && !ws.ShareSessions {
 		return nil
 	}
 	return &ws
@@ -607,6 +608,9 @@ type AgentCRUDStore interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	List(ctx context.Context, ownerID string) ([]AgentData, error)
 	GetDefault(ctx context.Context) (*AgentData, error) // agent with is_default=true, or first available
+	// ResetStuckSummoning flips rows with status='summoning' to 'summon_failed'.
+	// Called at startup to recover from crashes where summon goroutine died mid-flight.
+	ResetStuckSummoning(ctx context.Context) (int64, error)
 }
 
 // AgentAccessStore manages agent sharing and access control.

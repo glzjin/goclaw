@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   ChevronRight, Folder, FolderOpen, Loader2,
   FileText, Brain, StickyNote, Sparkles, Clock, Image, FileType,
@@ -40,6 +40,8 @@ export interface VaultTreeProps {
   activePath: string | null;
   onSelect: (path: string) => void;
   onLoadMore: (path: string) => void;
+  /** Incremented on each loadRoot — forces re-mount to reset auto-expand state */
+  treeVersion: number;
 }
 
 function VaultTreeNode({
@@ -49,7 +51,17 @@ function VaultTreeNode({
   activePath: string | null; onSelect: (path: string) => void; onLoadMore: (path: string) => void;
 }) {
   // Auto-expand first level folders (depth=0) by default
-  const [expanded, setExpanded] = useState(depth === 0 && node.isDir);
+  const shouldAutoExpand = depth === 0 && node.isDir;
+  const [expanded, setExpanded] = useState(shouldAutoExpand);
+  const [didAutoLoad, setDidAutoLoad] = useState(false);
+
+  // Auto-load children when auto-expanded
+  useEffect(() => {
+    if (shouldAutoExpand && !didAutoLoad && node.hasChildren && node.children.length === 0 && !node.loading) {
+      setDidAutoLoad(true);
+      onLoadMore(node.path);
+    }
+  }, [shouldAutoExpand, didAutoLoad, node.hasChildren, node.children.length, node.loading, node.path, onLoadMore]);
   const entry = meta.get(node.path);
 
   const handleToggle = useCallback(() => {
@@ -65,15 +77,15 @@ function VaultTreeNode({
     return (
       <div>
         <div
-          className="flex w-full items-center gap-1 rounded px-2 py-1 text-left text-sm cursor-pointer hover:bg-accent"
+          className="group flex w-full items-center gap-1 rounded px-2 py-1 text-left text-sm cursor-pointer hover:bg-accent"
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
           onClick={handleToggle}
         >
-          <ChevronRight className={`h-3 w-3 shrink-0 transition-transform ${expanded ? "rotate-90" : ""}`} />
+          <ChevronRight className={`h-3 w-3 shrink-0 transition-transform text-muted-foreground group-hover:text-foreground ${expanded ? "rotate-90" : ""}`} />
           {expanded
-            ? <FolderOpen className="h-4 w-4 shrink-0 text-yellow-600" />
-            : <Folder className="h-4 w-4 shrink-0 text-yellow-600" />}
-          <span className="truncate text-xs">{node.name}</span>
+            ? <FolderOpen className="h-4 w-4 shrink-0 text-yellow-600 dark:text-yellow-500" />
+            : <Folder className="h-4 w-4 shrink-0 text-yellow-600 dark:text-yellow-500" />}
+          <span className="truncate text-xs text-foreground/80 group-hover:text-foreground">{node.name}</span>
           {node.loading && <Loader2 className="h-3 w-3 shrink-0 animate-spin text-muted-foreground ml-auto" />}
           {!node.loading && node.children.length > 0 && (
             <span className="ml-auto shrink-0 rounded-full bg-muted px-1 text-2xs tabular-nums text-muted-foreground">
@@ -111,14 +123,14 @@ function VaultTreeNode({
       <Tooltip>
         <TooltipTrigger asChild>
           <div
-            className={`flex w-full items-center gap-1.5 rounded px-2 py-1 text-left cursor-pointer ${
-              isActive ? "bg-accent text-accent-foreground" : "hover:bg-accent/50"
+            className={`group flex w-full items-center gap-1.5 rounded px-2 py-1 text-left cursor-pointer ${
+              isActive ? "bg-accent" : "hover:bg-accent/50"
             }`}
             style={{ paddingLeft: `${depth * 16 + 20}px` }}
             onClick={() => onSelect(node.path)}
           >
             <Icon className={`h-3.5 w-3.5 shrink-0 ${color}`} />
-            <span className="truncate text-xs">{truncateMiddle(fileName)}</span>
+            <span className={`truncate text-xs ${isActive ? "text-accent-foreground" : "text-foreground/80 group-hover:text-foreground"}`}>{truncateMiddle(fileName)}</span>
             {scopeDot && <span className={`ml-auto h-1.5 w-1.5 rounded-full shrink-0 ${scopeDot}`} />}
           </div>
         </TooltipTrigger>
@@ -132,7 +144,7 @@ function VaultTreeNode({
   );
 }
 
-export function VaultTree({ tree, meta, loading, activePath, onSelect, onLoadMore }: VaultTreeProps) {
+export function VaultTree({ tree, meta, loading, activePath, onSelect, onLoadMore, treeVersion }: VaultTreeProps) {
   if (loading && tree.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -150,7 +162,7 @@ export function VaultTree({ tree, meta, loading, activePath, onSelect, onLoadMor
   return (
     <div className="flex-1 min-h-0">
       {tree.map((node) => (
-        <VaultTreeNode key={node.path} node={node} depth={0}
+        <VaultTreeNode key={`${treeVersion}:${node.path}`} node={node} depth={0}
           meta={meta} activePath={activePath} onSelect={onSelect} onLoadMore={onLoadMore} />
       ))}
     </div>

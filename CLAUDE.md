@@ -101,6 +101,12 @@ docker run -d --name pgtest -p 5433:5432 -e POSTGRES_PASSWORD=test -e POSTGRES_D
 TEST_DATABASE_URL="postgres://postgres:test@localhost:5433/goclaw_test?sslmode=disable" \
   go test -v -tags integration ./tests/integration/
 
+# Layered tests
+make test-invariants  # P0 - tenant isolation (blocking)
+make test-contracts   # P1 - API schemas (requires server)
+make test-scenarios   # P2 - user journeys (requires server)
+make test-critical    # P0 + P1 (pre-merge)
+
 cd ui/web && pnpm install && pnpm dev   # Web dashboard (dev)
 
 # Desktop (Wails + SQLite)
@@ -117,13 +123,16 @@ make desktop-dmg VERSION=0.1.0               # Create .dmg installer (macOS only
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | `ci.yaml` | push main, PR→main/dev | Go build+test+vet, Web build |
-| `release.yaml` | push main | semantic-release → binaries + Docker (4 variants + web) + Discord |
+| `release.yaml` | tag `v[0-9]+.[0-9]+.[0-9]+` | Binaries + Docker (4 variants + web) + Discord |
 | `release-beta.yaml` | tag `v*-beta*` / `v*-rc*` | Beta binaries + Docker + GitHub prerelease |
 | `release-desktop.yaml` | tag `lite-v*` | Desktop app (macOS+Windows), auto prerelease for `-beta`/`-rc` tags |
 
 ### Creating Releases
 
-**Standard release** — merge `dev` → `main`. `go-semantic-release` auto-creates version from conventional commits.
+**Standard release** — manual tag push after merging `dev` → `main`:
+```bash
+git tag v3.0.0 && git push origin v3.0.0
+```
 
 **Beta release** (from dev):
 ```bash
@@ -152,10 +161,10 @@ Published to GHCR (`ghcr.io/nextlevelbuilder/goclaw`) and Docker Hub (`digitop/g
 
 ### Tag Pattern Safety
 
-- `release.yaml`: branch-triggered (push main) → `go-semantic-release` creates clean `vX.Y.Z` tags
+- `release.yaml`: tag-triggered (`v[0-9]+.[0-9]+.[0-9]+`) — clean semver only, no beta/rc
 - `release-beta.yaml`: tag-triggered (`v*-beta*`, `v*-rc*`) — never matches clean semver
 - `release-desktop.yaml`: tag-triggered (`lite-v*`) — `lite-` prefix prevents overlap
-- No workflow triggers overlap — each tag pattern is distinct
+- No workflow triggers overlap — each tag pattern is distinct. Merging to `main` only triggers CI, not release
 
 ## Desktop Edition (Lite)
 
@@ -174,6 +183,44 @@ Published to GHCR (`ghcr.io/nextlevelbuilder/goclaw`) and Docker Hub (`digitop/g
 - **Lite limits:** 5 agents, 1 team, 5 members, 50 sessions. No channels, heartbeat, file storage UI, skill self-manage, KG, RBAC, multi-tenant
 - **Tool gating:** `TeamActionPolicy` in `internal/tools/team_action_policy.go` — lite blocks comment/review/approve/reject/attach/ask_user. `skill_manage`/`publish_skill` not registered in lite
 - **File serving:** 2-layer path isolation in `internal/http/files.go` — workspace boundary (all editions) + tenant scope (standard only with RBAC)
+
+## Plan Verification Rules
+
+Apply before finalizing any multi-phase plan. Trust-but-verify between scout → planner → final plan.
+
+### Verification discipline (what to verify)
+
+1. **Verify factual claims against code** — re-grep/re-count every number, path, endpoint. Don't copy from scout summaries.
+2. **Trace semantics, not just cite lines** — when plan references existing/upstream code, identify WHEN each field mutates and under WHAT conditions. Line-range citation without control-flow trace = how ports silently invert behavior. Check: every call, or specific branches only?
+3. **No fabricated identifiers / API families** — every symbol in plan must cite `file:line`. RED FLAGS: plausible-sounding wrappers (`Keyring`, `Validator`, `Manager`), centralized packages (`internal/security`, `internal/auth`) that may be scattered, OTel-style (`StartSpan/EndSpan`) when codebase is emit-based. When unsure, `go doc <pkg>` lists actual exported surface. Apply especially when plan says "reuse existing X".
+4. **Struct scope audit before adding state** — verify lifetime (per-request/session/agent/process) before adding a field to an existing struct. "Plausibly per-X" is a red flag — grep construction + ownership. Shared-instance state leaks across isolation boundaries.
+5. **Gate-premise test math** — before asserting "feature X triggers independently of Y", list all early-returns from function entry to X. Math-verify any fixture claiming "X without Y".
+6. **Port = config-shape match** — "faithful port" divergences in config field name/type are silent breaking changes for users copying upstream config. Match upstream shape, or explicitly flag each divergence with rationale in the phase file.
+7. **Verify external API endpoints via `docs-seeker`** — before writing endpoint into plan. Sibling APIs often use different roots.
+
+### Scope & coverage (where to look)
+
+8. **Grep delete scope deep** — `grep -rn '<symbol>' .` whole repo. Stubs often have refs in catalogs/routing/switch cases. Enumerate ALL sites in todo.
+9. **Signature-change callers enumeration** — grep + list all callers explicitly. "Update all callers" insufficient.
+10. **Alias/shim coverage** — enumerate ALL exported symbols via `go doc <pkg>`. Add compile-time signature guards.
+11. **Scout desktop and web separately** — `ui/desktop/frontend/` ≠ `ui/web/`. Different structure, i18n namespaces, test framework presence.
+
+### Phasing & ordering (when)
+
+12. **Re-scout on scope change** — if phase promotes from deferred → active, re-scout. Don't reuse brainstorm summary.
+13. **Cross-phase gates explicit** — "Phase N-1 merged + tests green" in phase Context. Execution order alone ≠ enforcement.
+14. **Zero-coverage characterization test = blocker step** — write byte/request-body fixture test BEFORE migration. Not "recommended".
+15. **i18n keys ordering** — add key + 3 catalogs as explicit todo step BEFORE handler code. Missing key = runtime crash.
+
+### Conventions & finalization
+
+16. **Context key style convention** — check existing `context.go` pattern before introducing new key types. Mixed = code smell.
+17. **Verify pass MANDATORY after rewrite** — spawn fresh Explore/grep to audit planner output. Don't trust self-validation.
+
+**Pattern to avoid:** user asks → planner writes → report "done".
+**Safer pattern:** user asks → scout → planner writes → audit-verify → report.
+
+**Red-team practice:** After planner completes, run `code-reviewer`/`brainstormer` in audit mode: "spot-check 15+ claims vs live codebase". Past catches: fabricated `crypto.Keyring`/`tracing.StartSpan` (agent-hooks plan); inverted TS-port semantics + wrong struct scope + misread early-return gate (context-pruning plan). See `plans/*/reports/audit-*.md` for concrete examples.
 
 ## Post-Implementation Checklist
 
@@ -198,6 +245,7 @@ Go conventions to follow:
 - **DB query reuse:** Before adding a new DB query for key entities (teams, agents, sessions, users), check if the same data is already fetched earlier in the current flow/pipeline. Prefer passing resolved data through context, event payloads, or function params rather than re-querying. Duplicate queries waste DB resources and add latency
 - **Solution design:** When designing a fix or feature, identify the root cause first — don't just patch symptoms. Think through production scenarios (high concurrency, multi-tenant isolation, failure cascades, long-running sessions) to ensure the solution holds up. Prefer explicit configuration over runtime heuristics. Prefer the simplest solution that addresses the root cause directly
 - **Tenant-scope guards on admin writes:** `RoleAdmin` is not a tenant check. Writes to **global** tables (no `tenant_id` column — e.g. `builtin_tools`, disk config, package mgmt) must gate with `http.requireMasterScope` / WS `requireMasterScope(requireOwner(...))`. Writes to **tenant-scoped** tables must gate with `http.requireTenantAdmin` + SQL `WHERE tenant_id = $N`. Shared predicate: `store.IsMasterScope(ctx)`. See `CONTRIBUTING.md` → "Tenant-scope guards" for the full decision table and anti-patterns.
+- **Skip load / stress / benchmark tests.** Do NOT write throughput benchmarks, p95/p99 latency assertions, or `runtime.ReadMemStats`-based memory-leak tests for regular feature work. They flake on shared CI runners, waste runner time, and rarely catch real bugs. Only add load tests when explicitly requested for a specific investigation. For normal "prove it works" coverage, use unit + integration + chaos tests.
 
 ## Mobile UI/UX Rules
 

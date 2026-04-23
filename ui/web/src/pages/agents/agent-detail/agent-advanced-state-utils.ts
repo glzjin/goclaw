@@ -97,7 +97,7 @@ export function deriveState(
       {}
     ) as WorkspaceSharingConfig,
     comp: agent.compaction_config ?? {},
-    pruneEnabled: agent.context_pruning?.mode !== "off",
+    pruneEnabled: agent.context_pruning?.mode === "cache-ttl",
     prune: agent.context_pruning ?? {},
     sbEnabled: agent.sandbox_config != null,
     sb: agent.sandbox_config ?? {},
@@ -146,7 +146,7 @@ export function buildAdvancedUpdatePayload(
   const updates: Record<string, unknown> = {
     compaction_config: comp,
     context_pruning: pruneEnabled
-      ? (Object.keys(prune).length > 0 ? prune : null)
+      ? { mode: "cache-ttl", ...prune }
       : { mode: "off" },
     sandbox_config: sbEnabled ? sb : null,
     ...routingPayload,
@@ -175,7 +175,9 @@ export function buildAdvancedUpdatePayload(
     wsSharing.shared_dm ||
     wsSharing.shared_group ||
     (wsSharing.shared_users?.length ?? 0) > 0 ||
-    wsSharing.share_memory
+    wsSharing.share_memory ||
+    wsSharing.share_knowledge_graph ||
+    wsSharing.share_sessions
   ) {
     updates.workspace_sharing = wsSharing;
   } else {

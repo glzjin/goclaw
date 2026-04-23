@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 
+	"github.com/nextlevelbuilder/goclaw/internal/config"
 	"github.com/nextlevelbuilder/goclaw/internal/eventbus"
 	"github.com/nextlevelbuilder/goclaw/internal/memory"
 	"github.com/nextlevelbuilder/goclaw/internal/pipeline"
@@ -50,6 +51,7 @@ func (l *Loop) buildPipelineDeps(req *RunRequest, bridgeRS *runState) pipeline.P
 	return pipeline.PipelineDeps{
 		TokenCounter: tokencount.NewTiktokenCounter(),
 		EventBus:     l.domainBus,
+		Hooks:        l.hookDispatcher,
 		Config: pipeline.PipelineConfig{
 			MaxIterations:      maxIter,
 			MaxToolCalls:       l.maxToolCalls,
@@ -111,7 +113,21 @@ func (l *Loop) buildPipelineDeps(req *RunRequest, bridgeRS *runState) pipeline.P
 
 		// Prune callbacks
 		PruneMessages:   cb.pruneMessages,
+		SanitizeHistory: cb.sanitizeHistory,
 		CompactMessages: cb.compactMessages,
+
+		// Cache-TTL gate callbacks (Phase 06)
+		GetProviderCaps: func() providers.ProviderCapabilities {
+			if ca, ok := l.provider.(providers.CapabilitiesAware); ok {
+				return ca.Capabilities()
+			}
+			return providers.ProviderCapabilities{}
+		},
+		GetPruningConfig: func() *config.ContextPruningConfig {
+			return l.contextPruningCfg
+		},
+		GetCacheTouch:    l.cacheTouchAt,
+		MarkCacheTouched: l.markCacheTouched,
 
 		// Memory flush
 		RunMemoryFlush: cb.runMemoryFlush,
@@ -255,7 +271,7 @@ func (l *Loop) makeAutoInjectCallback(req *RunRequest) func(ctx context.Context,
 	return func(ctx context.Context, userMessage, userID, recentContext string) (string, error) {
 		result, err := l.autoInjector.Inject(ctx, memory.InjectParams{
 			AgentID:       l.agentUUID.String(),
-			UserID:        userID,
+			UserID:        store.MemoryUserID(ctx),
 			TenantID:      store.TenantIDFromContext(ctx).String(),
 			UserMessage:   userMessage,
 			RecentContext: recentContext,

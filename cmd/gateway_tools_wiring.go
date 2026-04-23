@@ -24,6 +24,10 @@ func wireExtraTools(
 	globalSkillsDir string,
 	builtinSkillsDir string,
 ) (heartbeatTool *tools.HeartbeatTool, hasMemory bool) {
+	// web_search: tenant-scoped resolve requires stores + msgBus — register here.
+	toolsReg.Register(tools.NewWebSearchTool(pgStores.ConfigSecrets, msgBus))
+	slog.Info("web_search tool registered (tenant-scoped resolve)")
+
 	// DateTime tool (precise time for cron scheduling, memory timestamps, etc.)
 	toolsReg.Register(tools.NewDateTimeTool())
 
@@ -79,15 +83,38 @@ func wireExtraTools(
 	if pgStores.Skills != nil {
 		skillsAllowPaths = append(skillsAllowPaths, pgStores.Skills.Dirs()...)
 	}
+	// Expand user-configured allowed paths (for cross-drive access on Windows).
+	// These paths are validated per-request in resolvePath for tenant isolation.
+	var userAllowPaths []string
+	for _, p := range agentCfg.AllowedPaths {
+		expanded := config.ExpandHome(p)
+		if expanded != "" {
+			userAllowPaths = append(userAllowPaths, expanded)
+		}
+	}
+
 	if readTool, ok := toolsReg.Get("read_file"); ok {
 		if pa, ok := readTool.(tools.PathAllowable); ok {
 			pa.AllowPaths(skillsAllowPaths...)
 			pa.AllowPaths(filepath.Join(dataDir, "cli-workspaces"))
+			pa.AllowPaths(userAllowPaths...)
 		}
 	}
 	if listTool, ok := toolsReg.Get("list_files"); ok {
 		if pa, ok := listTool.(tools.PathAllowable); ok {
 			pa.AllowPaths(skillsAllowPaths...)
+			pa.AllowPaths(userAllowPaths...)
+		}
+	}
+	// Write and edit tools also get user-configured allowed paths for cross-drive access.
+	if writeTool, ok := toolsReg.Get("write_file"); ok {
+		if pa, ok := writeTool.(tools.PathAllowable); ok {
+			pa.AllowPaths(userAllowPaths...)
+		}
+	}
+	if editTool, ok := toolsReg.Get("edit"); ok {
+		if pa, ok := editTool.(tools.PathAllowable); ok {
+			pa.AllowPaths(userAllowPaths...)
 		}
 	}
 

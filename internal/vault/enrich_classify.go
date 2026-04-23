@@ -153,6 +153,10 @@ func (w *EnrichWorker) gatherCandidates(ctx context.Context, tenantID, _ string,
 			if n.Score < enrichSimilarityMin || n.Document.Summary == "" {
 				continue
 			}
+			// Skip meaningless filenames as link targets — they create noise.
+			if shouldSkipEnrichment(n.Document.PathBasename) {
+				continue
+			}
 			// Bidirectional dedup: only process each pair once.
 			a, b := src.DocID, n.Document.ID
 			if a > b {

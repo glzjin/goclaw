@@ -115,7 +115,9 @@ func RescanWorkspace(ctx context.Context, params RescanParams, vs store.VaultSto
 
 		// Collect enrichment events — published AFTER the loop so the caller
 		// can call progress.Start(total) before workers receive events.
-		if bus != nil {
+		// Skip auto-generated media files (goclaw_gen_*) — they create excessive
+		// noise links and shouldn't be counted in progress tracking.
+		if bus != nil && !shouldSkipEnrichment(filepath.Base(relPath)) {
 			result.PendingEvents = append(result.PendingEvents, eventbus.DomainEvent{
 				ID:        uuid.Must(uuid.NewV7()).String(),
 				Type:      eventbus.EventVaultDocUpserted,

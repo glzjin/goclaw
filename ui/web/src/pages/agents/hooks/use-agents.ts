@@ -47,9 +47,9 @@ export function useAgents() {
         max_tool_iterations: 0,
         workspace: "",
         restrict_to_workspace: false,
-        agent_type: "open" as const,
+        agent_type: (a as unknown as { agentType?: string }).agentType === "predefined" ? "predefined" as const : "open" as const,
         is_default: false,
-        status: a.isRunning ? "running" : "idle",
+        status: a.isRunning ? "active" : "inactive",
       }));
     },
     staleTime: 60_000,
@@ -113,5 +113,12 @@ export function useAgents() {
     [http],
   );
 
-  return { agents, loading, error, refresh: invalidate, createAgent, updateAgent, deleteAgent, resummonAgent };
+  const cancelSummonAgent = useCallback(
+    async (id: string) => {
+      await http.post(`/v1/agents/${id}/cancel-summon`);
+    },
+    [http],
+  );
+
+  return { agents, loading, error, refresh: invalidate, createAgent, updateAgent, deleteAgent, resummonAgent, cancelSummonAgent };
 }

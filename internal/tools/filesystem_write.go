@@ -16,13 +16,20 @@ import (
 type WriteFileTool struct {
 	workspace       string
 	restrict        bool
-	deniedPrefixes  []string // path prefixes to deny access to (e.g. .goclaw)
+	allowedPrefixes []string                    // extra allowed path prefixes (cross-drive on Windows)
+	deniedPrefixes  []string                    // path prefixes to deny access to (e.g. .goclaw)
 	sandboxMgr      sandbox.Manager
 	contextFileIntc *ContextFileInterceptor     // nil = no virtual FS routing
 	memIntc         *MemoryInterceptor          // nil = no memory routing
 	permStore       store.ConfigPermissionStore // nil = no group write restriction
 	workspaceIntc   *WorkspaceInterceptor       // nil = no team workspace validation
 	vaultIntc       *VaultInterceptor           // nil = no vault registration
+}
+
+// AllowPaths adds extra path prefixes that write_file is allowed to access
+// even when restrict_to_workspace is true (e.g. cross-drive on Windows).
+func (t *WriteFileTool) AllowPaths(prefixes ...string) {
+	t.allowedPrefixes = append(t.allowedPrefixes, prefixes...)
 }
 
 // DenyPaths adds path prefixes that write_file must reject.
@@ -181,7 +188,7 @@ func (t *WriteFileTool) Execute(ctx context.Context, args map[string]any) *Resul
 	if workspace == "" {
 		workspace = t.workspace
 	}
-	allowed := allowedWithTeamWorkspace(ctx, nil)
+	allowed := allowedWithTeamWorkspace(ctx, t.allowedPrefixes)
 	resolved, err := resolvePathWithAllowed(path, workspace, effectiveRestrict(ctx, t.restrict), allowed)
 	if err != nil {
 		return ErrorResult(err.Error())
@@ -242,7 +249,7 @@ func (t *WriteFileTool) Execute(ctx context.Context, args map[string]any) *Resul
 	result := SilentResult(msg)
 	result.Deliverable = content
 	if deliver {
-		result.Media = []bus.MediaFile{{Path: resolved}}
+		result.Media = []bus.MediaFile{{Path: resolved, Filename: filepath.Base(resolved)}}
 		// Track delivered path so message tool's self-send guard can detect duplicates.
 		if dm := DeliveredMediaFromCtx(ctx); dm != nil {
 			dm.Mark(resolved)
@@ -288,7 +295,7 @@ func (t *WriteFileTool) executeInSandbox(ctx context.Context, path, content, san
 			workspace = t.workspace
 		}
 		hostPath := filepath.Join(workspace, path)
-		result.Media = []bus.MediaFile{{Path: hostPath}}
+		result.Media = []bus.MediaFile{{Path: hostPath, Filename: filepath.Base(hostPath)}}
 		if dm := DeliveredMediaFromCtx(ctx); dm != nil {
 			dm.Mark(hostPath)
 		}
