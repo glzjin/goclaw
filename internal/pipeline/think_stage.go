@@ -67,8 +67,8 @@ func (s *ThinkStage) Execute(ctx context.Context, state *RunState) error {
 			state.Think.OverflowRetries++
 			// Attempt emergency compaction
 			if s.deps.CompactMessages != nil {
-				originalLen := len(state.Messages.History())
-				compacted, compactErr := s.deps.CompactMessages(ctx, state.Messages.History(), state.Model)
+				originalLen := len(state.Messages.Messages())
+				compacted, compactErr := s.deps.CompactMessages(ctx, state.Messages.Messages(), state.Model)
 				if compactErr == nil {
 					state.Messages.ReplaceHistory(compacted)
 					slog.Info("emergency_compaction_triggered",

@@ -24,6 +24,14 @@ func (mb *MessageBuffer) All() []providers.Message {
 	return out
 }
 
+// Messages returns history + pending (excludes system).
+func (mb *MessageBuffer) Messages() []providers.Message {
+	out := make([]providers.Message, 0, len(mb.history)+len(mb.pending))
+	out = append(out, mb.history...)
+	out = append(out, mb.pending...)
+	return out
+}
+
 // System returns the system message.
 func (mb *MessageBuffer) System() providers.Message { return mb.system }
 
@@ -53,9 +61,11 @@ func (mb *MessageBuffer) FlushPending() []providers.Message {
 }
 
 // ReplaceHistory replaces history after compaction.
-// It explicitly preserves the pending buffer, because compaction only processes history.
+// It also clears pending, as the compacted messages must include any pending
+// messages to prevent them from being lost or duplicated.
 func (mb *MessageBuffer) ReplaceHistory(msgs []providers.Message) {
 	mb.history = msgs
+	mb.pending = nil
 }
 
 // HistoryLen returns history count (excludes system + pending).

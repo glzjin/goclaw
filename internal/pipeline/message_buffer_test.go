@@ -101,7 +101,7 @@ func TestMessageBuffer_FlushPending_EmptyPending(t *testing.T) {
 	}
 }
 
-func TestMessageBuffer_ReplaceHistory_PreservesPending(t *testing.T) {
+func TestMessageBuffer_ReplaceHistory_ClearsPending(t *testing.T) {
 	t.Parallel()
 	mb := NewMessageBuffer(providers.Message{Role: "system", Content: "s"})
 	mb.AppendPending(providers.Message{Role: "user", Content: "pending"})
@@ -117,11 +117,23 @@ func TestMessageBuffer_ReplaceHistory_PreservesPending(t *testing.T) {
 	if len(mb.History()) != 1 || mb.History()[0].Content != "compacted" {
 		t.Errorf("History after ReplaceHistory = %v", mb.History())
 	}
-	if len(mb.Pending()) != 1 {
-		t.Errorf("Pending after ReplaceHistory = %d, want 1", len(mb.Pending()))
+	if len(mb.Pending()) != 0 {
+		t.Errorf("Pending after ReplaceHistory = %d, want 0 (should be cleared)", len(mb.Pending()))
 	}
-	if mb.Pending()[0].Content != "pending" {
-		t.Errorf("Pending content after ReplaceHistory = %q, want pending", mb.Pending()[0].Content)
+}
+
+func TestMessageBuffer_Messages(t *testing.T) {
+	t.Parallel()
+	mb := NewMessageBuffer(providers.Message{Role: "system", Content: "s"})
+	mb.SetHistory([]providers.Message{{Role: "user", Content: "hist1"}})
+	mb.AppendPending(providers.Message{Role: "assistant", Content: "pend1"})
+
+	msgs := mb.Messages()
+	if len(msgs) != 2 {
+		t.Errorf("Messages() returned %d messages, want 2", len(msgs))
+	}
+	if msgs[0].Content != "hist1" || msgs[1].Content != "pend1" {
+		t.Errorf("Messages() content mismatch")
 	}
 }
 

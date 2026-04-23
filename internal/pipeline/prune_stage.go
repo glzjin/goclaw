@@ -180,7 +180,7 @@ func (s *PruneStage) Execute(ctx context.Context, state *RunState) error {
 		return nil // no compaction available
 	}
 
-	compacted, err := s.deps.CompactMessages(ctx, state.Messages.History(), state.Model)
+	compacted, err := s.deps.CompactMessages(ctx, state.Messages.Messages(), state.Model)
 	if err != nil {
 		return fmt.Errorf("compact messages: %w", err)
 	}
