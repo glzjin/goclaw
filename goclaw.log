@@ -1,0 +1,682 @@
+2026/04/23 07:44:04 INFO pkg-helper: starting socket=/tmp/pkg.sock
+2026/04/23 07:44:04 INFO pkg-helper: ready
+Running database upgrade...
+  App version:     dev (protocol 3)
+  Schema current:  49
+  Schema required: 55
+
+  Applying SQL migrations... OK (v49 -> v55)
+2026/04/23 07:44:05 INFO running data migration hook name=055_web_search_legacy_keys_to_config_secrets schema_version=55
+2026/04/23 07:44:05 INFO data migration hook complete name=055_web_search_legacy_keys_to_config_secrets duration=16.835011ms
+  Running data hooks... 1 applied
+
+  Upgrade complete.
+time=2026-04-23T07:44:05.709Z level=INFO msg="security.server_ip_scrub: local IPs registered" count=4 ips="[172.23.0.2 172.22.0.2 fd22:c227:f3b7:8::2 fd22:c227:f3b7:7::2]"
+time=2026-04-23T07:44:05.710Z level=INFO msg="memory + knowledge graph tools registered (PG-backed)"
+time=2026-04-23T07:44:05.710Z level=INFO msg="browser tool enabled" headless=true
+time=2026-04-23T07:44:05.710Z level=INFO msg="web_fetch tool enabled" policy="" blocked=0
+time=2026-04-23T07:44:05.710Z level=INFO msg="tts enabled" provider=edge auto=off
+time=2026-04-23T07:44:05.710Z level=INFO msg="tool rate limiting enabled" per_hour=150
+time=2026-04-23T07:44:05.710Z level=INFO msg="exec approval enabled" security=full ask=off
+time=2026-04-23T07:44:05.730Z level=INFO msg="schema check passed" current=55 required=55
+time=2026-04-23T07:44:05.739Z level=INFO msg="postgres connected" dsn_len=67
+time=2026-04-23T07:44:05.750Z level=INFO msg="provider store: API key encryption enabled"
+time=2026-04-23T07:44:05.750Z level=INFO msg="tracing: verbose mode enabled (GOCLAW_TRACE_VERBOSE)"
+time=2026-04-23T07:44:05.750Z level=INFO msg="tracing collector started"
+time=2026-04-23T07:44:05.750Z level=INFO msg="LLM tracing enabled"
+time=2026-04-23T07:44:05.750Z level=INFO msg="snapshot worker started"
+time=2026-04-23T07:44:05.751Z level=INFO msg="config secrets loaded from DB" count=1
+time=2026-04-23T07:44:05.755Z level=INFO msg="registered provider from DB" name=openai-compat
+time=2026-04-23T07:44:05.755Z level=INFO msg="model registry initialized" anthropic_models=3 openai_models=5
+time=2026-04-23T07:44:05.772Z level=INFO msg="system_configs applied to in-memory config" keys=7
+time=2026-04-23T07:44:05.773Z level=WARN msg="no embedding provider configured — enable embedding in a provider's settings"
+time=2026-04-23T07:44:05.774Z level=WARN msg="memory embeddings disabled (no API key), chunks stored without vectors"
+time=2026-04-23T07:44:05.774Z level=INFO msg="consolidation pipeline registered" provider=openai-compat model=""
+time=2026-04-23T07:44:05.774Z level=INFO msg="vault enrichment worker registered (per-tenant provider resolution)"
+time=2026-04-23T07:44:05.774Z level=INFO msg="bootstrap loaded from filesystem" count=0
+time=2026-04-23T07:44:05.774Z level=INFO msg="bootstrap context files" count=0 files=[]
+time=2026-04-23T07:44:05.780Z level=INFO msg="subagent system enabled" tools=[spawn]
+time=2026-04-23T07:44:05.783Z level=INFO msg="skill_search index rebuilt" docs=5 version=0
+time=2026-04-23T07:44:05.786Z level=INFO msg="skill_search tool registered" skills=5
+time=2026-04-23T07:44:05.786Z level=INFO msg="skills-store directory wired into loader" dir=/app/data/skills-store
+time=2026-04-23T07:44:05.796Z level=INFO msg="snapshot computed" hour=2026-04-11T02:00:00Z duration_ms=19
+time=2026-04-23T07:44:05.797Z level=INFO msg="snapshot computed" hour=2026-04-11T03:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.798Z level=INFO msg="snapshot computed" hour=2026-04-11T04:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.798Z level=INFO msg="snapshot computed" hour=2026-04-11T05:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.799Z level=INFO msg="snapshot computed" hour=2026-04-11T06:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.799Z level=INFO msg="snapshot computed" hour=2026-04-11T07:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.800Z level=INFO msg="snapshot computed" hour=2026-04-11T08:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.800Z level=INFO msg="snapshot computed" hour=2026-04-11T09:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.800Z level=INFO msg="snapshot computed" hour=2026-04-11T10:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.801Z level=INFO msg="snapshot computed" hour=2026-04-11T11:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.801Z level=INFO msg="snapshot computed" hour=2026-04-11T12:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.801Z level=INFO msg="snapshot computed" hour=2026-04-11T13:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.801Z level=INFO msg="snapshot computed" hour=2026-04-11T14:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.801Z level=INFO msg="snapshot computed" hour=2026-04-11T15:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.802Z level=INFO msg="snapshot computed" hour=2026-04-11T16:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.802Z level=INFO msg="snapshot computed" hour=2026-04-11T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.802Z level=INFO msg="snapshot computed" hour=2026-04-11T18:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.802Z level=INFO msg="snapshot computed" hour=2026-04-11T19:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.802Z level=INFO msg="snapshot computed" hour=2026-04-11T20:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.803Z level=INFO msg="snapshot computed" hour=2026-04-11T21:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.803Z level=INFO msg="snapshot computed" hour=2026-04-11T22:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.803Z level=INFO msg="snapshot computed" hour=2026-04-11T23:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.803Z level=INFO msg="snapshot computed" hour=2026-04-12T00:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.803Z level=INFO msg="snapshot computed" hour=2026-04-12T01:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.803Z level=INFO msg="snapshot computed" hour=2026-04-12T02:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.803Z level=INFO msg="snapshot computed" hour=2026-04-12T03:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.804Z level=INFO msg="snapshot computed" hour=2026-04-12T04:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.804Z level=INFO msg="snapshot computed" hour=2026-04-12T05:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.804Z level=INFO msg="snapshot computed" hour=2026-04-12T06:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.804Z level=INFO msg="snapshot computed" hour=2026-04-12T07:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.804Z level=INFO msg="snapshot computed" hour=2026-04-12T08:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.804Z level=INFO msg="snapshot computed" hour=2026-04-12T09:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.805Z level=INFO msg="snapshot computed" hour=2026-04-12T10:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.805Z level=INFO msg="snapshot computed" hour=2026-04-12T11:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.805Z level=INFO msg="snapshot computed" hour=2026-04-12T12:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.805Z level=INFO msg="snapshot computed" hour=2026-04-12T13:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.805Z level=INFO msg="snapshot computed" hour=2026-04-12T14:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.805Z level=INFO msg="snapshot computed" hour=2026-04-12T15:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.806Z level=INFO msg="snapshot computed" hour=2026-04-12T16:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.806Z level=INFO msg="snapshot computed" hour=2026-04-12T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.806Z level=INFO msg="snapshot computed" hour=2026-04-12T18:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.807Z level=INFO msg="snapshot computed" hour=2026-04-12T19:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.808Z level=INFO msg="snapshot computed" hour=2026-04-12T20:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.808Z level=INFO msg="snapshot computed" hour=2026-04-12T21:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.808Z level=INFO msg="snapshot computed" hour=2026-04-12T22:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.810Z level=INFO msg="snapshot computed" hour=2026-04-12T23:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.811Z level=INFO msg="snapshot computed" hour=2026-04-13T00:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.812Z level=INFO msg="snapshot computed" hour=2026-04-13T01:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.813Z level=INFO msg="snapshot computed" hour=2026-04-13T02:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.814Z level=INFO msg="snapshot computed" hour=2026-04-13T03:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.814Z level=INFO msg="snapshot computed" hour=2026-04-13T04:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.815Z level=INFO msg="snapshot computed" hour=2026-04-13T05:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.815Z level=INFO msg="snapshot computed" hour=2026-04-13T06:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.816Z level=INFO msg="snapshot computed" hour=2026-04-13T07:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.816Z level=INFO msg="snapshot computed" hour=2026-04-13T08:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.816Z level=INFO msg="snapshot computed" hour=2026-04-13T09:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.816Z level=INFO msg="snapshot computed" hour=2026-04-13T10:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.816Z level=INFO msg="snapshot computed" hour=2026-04-13T11:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.817Z level=INFO msg="snapshot computed" hour=2026-04-13T12:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.817Z level=INFO msg="snapshot computed" hour=2026-04-13T13:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.817Z level=INFO msg="snapshot computed" hour=2026-04-13T14:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.818Z level=INFO msg="snapshot computed" hour=2026-04-13T15:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.818Z level=INFO msg="snapshot computed" hour=2026-04-13T16:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.818Z level=INFO msg="snapshot computed" hour=2026-04-13T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.819Z level=INFO msg="snapshot computed" hour=2026-04-13T18:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.819Z level=INFO msg="snapshot computed" hour=2026-04-13T19:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.819Z level=INFO msg="snapshot computed" hour=2026-04-13T20:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.820Z level=INFO msg="snapshot computed" hour=2026-04-13T21:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.820Z level=INFO msg="snapshot computed" hour=2026-04-13T22:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.821Z level=INFO msg="snapshot computed" hour=2026-04-13T23:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.824Z level=INFO msg="snapshot computed" hour=2026-04-14T00:00:00Z duration_ms=2
+time=2026-04-23T07:44:05.825Z level=INFO msg="snapshot computed" hour=2026-04-14T01:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.825Z level=INFO msg="snapshot computed" hour=2026-04-14T02:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.826Z level=INFO msg="snapshot computed" hour=2026-04-14T03:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.826Z level=INFO msg="snapshot computed" hour=2026-04-14T04:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.826Z level=INFO msg="snapshot computed" hour=2026-04-14T05:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.827Z level=INFO msg="snapshot computed" hour=2026-04-14T06:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.827Z level=INFO msg="snapshot computed" hour=2026-04-14T07:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.827Z level=INFO msg="snapshot computed" hour=2026-04-14T08:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.828Z level=INFO msg="snapshot computed" hour=2026-04-14T09:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.828Z level=INFO msg="snapshot computed" hour=2026-04-14T10:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.828Z level=INFO msg="snapshot computed" hour=2026-04-14T11:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.829Z level=INFO msg="snapshot computed" hour=2026-04-14T12:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.830Z level=INFO msg="snapshot computed" hour=2026-04-14T13:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.830Z level=INFO msg="snapshot computed" hour=2026-04-14T14:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.830Z level=INFO msg="snapshot computed" hour=2026-04-14T15:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.831Z level=INFO msg="snapshot computed" hour=2026-04-14T16:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.831Z level=INFO msg="snapshot computed" hour=2026-04-14T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.831Z level=INFO msg="snapshot computed" hour=2026-04-14T18:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.831Z level=INFO msg="snapshot computed" hour=2026-04-14T19:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.832Z level=INFO msg="snapshot computed" hour=2026-04-14T20:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.832Z level=INFO msg="snapshot computed" hour=2026-04-14T21:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.833Z level=INFO msg="snapshot computed" hour=2026-04-14T22:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.834Z level=INFO msg="publish_skill tool registered"
+time=2026-04-23T07:44:05.834Z level=INFO msg="skill_manage tool registered"
+time=2026-04-23T07:44:05.836Z level=INFO msg="snapshot computed" hour=2026-04-14T23:00:00Z duration_ms=2
+time=2026-04-23T07:44:05.836Z level=INFO msg="snapshot computed" hour=2026-04-15T00:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.837Z level=INFO msg="snapshot computed" hour=2026-04-15T01:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.839Z level=INFO msg="snapshot computed" hour=2026-04-15T02:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.840Z level=WARN msg="no embedding provider configured — enable embedding in a provider's settings"
+time=2026-04-23T07:44:05.840Z level=INFO msg="web_search tool registered (tenant-scoped resolve)"
+time=2026-04-23T07:44:05.840Z level=INFO msg="cron tool registered"
+time=2026-04-23T07:44:05.840Z level=INFO msg="heartbeat tool registered"
+time=2026-04-23T07:44:05.840Z level=INFO msg="session + message + send_file tools registered"
+time=2026-04-23T07:44:05.840Z level=INFO msg="tool aliases registered" count=13
+time=2026-04-23T07:44:05.841Z level=INFO msg="agents will be resolved lazily from database"
+time=2026-04-23T07:44:05.841Z level=INFO msg="cache backend: in-memory"
+time=2026-04-23T07:44:05.841Z level=INFO msg="media tools registered" tools=read_document,read_audio,read_video,create_video
+time=2026-04-23T07:44:05.841Z level=INFO msg="snapshot computed" hour=2026-04-15T03:00:00Z duration_ms=2
+time=2026-04-23T07:44:05.844Z level=INFO msg="snapshot computed" hour=2026-04-15T04:00:00Z duration_ms=2
+time=2026-04-23T07:44:05.845Z level=INFO msg="snapshot computed" hour=2026-04-15T05:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.845Z level=INFO msg="snapshot computed" hour=2026-04-15T06:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.846Z level=INFO msg="snapshot computed" hour=2026-04-15T07:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.847Z level=INFO msg="snapshot computed" hour=2026-04-15T08:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.848Z level=INFO msg="snapshot computed" hour=2026-04-15T09:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.849Z level=INFO msg="snapshot computed" hour=2026-04-15T10:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.849Z level=INFO msg="snapshot computed" hour=2026-04-15T11:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.850Z level=INFO msg="snapshot computed" hour=2026-04-15T12:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.850Z level=INFO msg="snapshot computed" hour=2026-04-15T13:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.850Z level=INFO msg="snapshot computed" hour=2026-04-15T14:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.851Z level=INFO msg="snapshot computed" hour=2026-04-15T15:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.851Z level=INFO msg="snapshot computed" hour=2026-04-15T16:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.852Z level=INFO msg="snapshot computed" hour=2026-04-15T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.852Z level=INFO msg="snapshot computed" hour=2026-04-15T18:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.853Z level=INFO msg="snapshot computed" hour=2026-04-15T19:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.853Z level=INFO msg="snapshot computed" hour=2026-04-15T20:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.853Z level=INFO msg="snapshot computed" hour=2026-04-15T21:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.853Z level=INFO msg="snapshot computed" hour=2026-04-15T22:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.853Z level=INFO msg="snapshot computed" hour=2026-04-15T23:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.854Z level=INFO msg="snapshot computed" hour=2026-04-16T00:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.854Z level=INFO msg="snapshot computed" hour=2026-04-16T01:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.854Z level=INFO msg="snapshot computed" hour=2026-04-16T02:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.854Z level=INFO msg="snapshot computed" hour=2026-04-16T03:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.854Z level=INFO msg="snapshot computed" hour=2026-04-16T04:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.854Z level=INFO msg="snapshot computed" hour=2026-04-16T05:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.854Z level=INFO msg="snapshot computed" hour=2026-04-16T06:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.855Z level=INFO msg="snapshot computed" hour=2026-04-16T07:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.855Z level=INFO msg="snapshot computed" hour=2026-04-16T08:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.856Z level=INFO msg=hooks.builtin_seeded id=pii-redactor event=user_prompt_submit version=2
+time=2026-04-23T07:44:05.860Z level=INFO msg="snapshot computed" hour=2026-04-16T09:00:00Z duration_ms=4
+time=2026-04-23T07:44:05.860Z level=INFO msg=hooks.builtin_seeded id=pii-redactor event=pre_tool_use version=2
+time=2026-04-23T07:44:05.862Z level=INFO msg="snapshot computed" hour=2026-04-16T10:00:00Z duration_ms=2
+time=2026-04-23T07:44:05.864Z level=INFO msg="agent hooks dispatcher wired" handlers=command,http,prompt
+time=2026-04-23T07:44:05.864Z level=INFO msg="memory layering enabled"
+time=2026-04-23T07:44:05.864Z level=INFO msg="v3 episodic memory wired to tools"
+time=2026-04-23T07:44:05.864Z level=INFO msg="knowledge graph tool wired (Postgres)"
+time=2026-04-23T07:44:05.864Z level=INFO msg="vault tools registered" tools=vault_search,vault_read,create_image,create_video,create_audio,tts,edit
+time=2026-04-23T07:44:05.864Z level=INFO msg="delegate tool wired"
+time=2026-04-23T07:44:05.864Z level=INFO msg="snapshot computed" hour=2026-04-16T11:00:00Z duration_ms=2
+time=2026-04-23T07:44:05.864Z level=INFO msg="team tools registered" workspace=/app/workspace
+time=2026-04-23T07:44:05.865Z level=INFO msg="team tools registered"
+time=2026-04-23T07:44:05.865Z level=INFO msg="resolver + interceptors + cache subscribers wired"
+time=2026-04-23T07:44:05.865Z level=INFO msg="packages: github installer enabled" bin_dir=/app/data/.runtime/bin manifest=/app/data/.runtime/github-packages.json allowed_orgs=[] max_asset_mb=200 token_set=false
+time=2026-04-23T07:44:05.868Z level=INFO msg="snapshot computed" hour=2026-04-16T12:00:00Z duration_ms=3
+time=2026-04-23T07:44:05.870Z level=INFO msg="snapshot computed" hour=2026-04-16T13:00:00Z duration_ms=2
+time=2026-04-23T07:44:05.874Z level=INFO msg="snapshot computed" hour=2026-04-16T14:00:00Z duration_ms=3
+time=2026-04-23T07:44:05.878Z level=INFO msg="snapshot computed" hour=2026-04-16T15:00:00Z duration_ms=3
+time=2026-04-23T07:44:05.879Z level=INFO msg="snapshot computed" hour=2026-04-16T16:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.881Z level=INFO msg="snapshot computed" hour=2026-04-16T17:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.881Z level=INFO msg="snapshot computed" hour=2026-04-16T18:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.886Z level=INFO msg="snapshot computed" hour=2026-04-16T19:00:00Z duration_ms=4
+time=2026-04-23T07:44:05.891Z level=INFO msg="snapshot computed" hour=2026-04-16T20:00:00Z duration_ms=4
+time=2026-04-23T07:44:05.892Z level=INFO msg="snapshot computed" hour=2026-04-16T21:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.893Z level=INFO msg="snapshot computed" hour=2026-04-16T22:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.894Z level=INFO msg="snapshot computed" hour=2026-04-16T23:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.895Z level=INFO msg="snapshot computed" hour=2026-04-17T00:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.897Z level=INFO msg="snapshot computed" hour=2026-04-17T01:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.899Z level=INFO msg="snapshot computed" hour=2026-04-17T02:00:00Z duration_ms=2
+time=2026-04-23T07:44:05.900Z level=INFO msg="snapshot computed" hour=2026-04-17T03:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.903Z level=INFO msg="snapshot computed" hour=2026-04-17T04:00:00Z duration_ms=2
+time=2026-04-23T07:44:05.907Z level=INFO msg="snapshot computed" hour=2026-04-17T05:00:00Z duration_ms=3
+time=2026-04-23T07:44:05.907Z level=INFO msg="builtin tools seeded" count=34
+time=2026-04-23T07:44:05.908Z level=INFO msg="snapshot computed" hour=2026-04-17T06:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.914Z level=INFO msg="snapshot computed" hour=2026-04-17T07:00:00Z duration_ms=6
+time=2026-04-23T07:44:05.920Z level=INFO msg="snapshot computed" hour=2026-04-17T08:00:00Z duration_ms=5
+time=2026-04-23T07:44:05.920Z level=INFO msg="builtin tools updated" disabled=8 enabled=26
+time=2026-04-23T07:44:05.920Z level=INFO msg="snapshot computed" hour=2026-04-17T09:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.920Z level=INFO msg="registered all RPC methods" phase1="[chat agents sessions config]" phase2="[skills cron heartbeat pairing usage exec_approval send]"
+time=2026-04-23T07:44:05.920Z level=INFO msg="registered hooks RPC methods"
+time=2026-04-23T07:44:05.926Z level=INFO msg="snapshot computed" hour=2026-04-17T10:00:00Z duration_ms=6
+time=2026-04-23T07:44:05.926Z level=INFO msg="channel instance loaded" name=dingtalk type=dingtalk agent_id=019d71c5-ec85-7125-93a1-b7e3f9db74db
+time=2026-04-23T07:44:05.926Z level=INFO msg="channel instances loaded from DB" count=1
+time=2026-04-23T07:44:05.927Z level=INFO msg="audit subscriber registered"
+time=2026-04-23T07:44:05.927Z level=INFO msg="team task event subscriber registered"
+time=2026-04-23T07:44:05.927Z level=INFO msg="team progress notification subscriber registered"
+time=2026-04-23T07:44:05.928Z level=INFO msg="snapshot computed" hour=2026-04-17T11:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.933Z level=INFO msg="skills watcher started" dirs=6 watched=14
+time=2026-04-23T07:44:05.933Z level=INFO msg="starting all channels"
+time=2026-04-23T07:44:05.933Z level=INFO msg="starting channel" channel=dingtalk
+time=2026-04-23T07:44:05.933Z level=INFO msg="outbound dispatcher started"
+time=2026-04-23T07:44:05.933Z level=INFO msg="snapshot computed" hour=2026-04-17T12:00:00Z duration_ms=4
+time=2026-04-23T07:44:05.939Z level=INFO msg="snapshot computed" hour=2026-04-17T13:00:00Z duration_ms=5
+time=2026-04-23T07:44:05.941Z level=INFO msg="snapshot computed" hour=2026-04-17T14:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.942Z level=INFO msg="snapshot computed" hour=2026-04-17T15:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.942Z level=INFO msg="snapshot computed" hour=2026-04-17T16:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.943Z level=INFO msg="snapshot computed" hour=2026-04-17T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.944Z level=INFO msg="snapshot computed" hour=2026-04-17T18:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.945Z level=INFO msg="snapshot computed" hour=2026-04-17T19:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.945Z level=INFO msg="snapshot computed" hour=2026-04-17T20:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.946Z level=INFO msg="snapshot computed" hour=2026-04-17T21:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.951Z level=INFO msg="snapshot computed" hour=2026-04-17T22:00:00Z duration_ms=4
+time=2026-04-23T07:44:05.967Z level=INFO msg="snapshot computed" hour=2026-04-17T23:00:00Z duration_ms=16
+time=2026-04-23T07:44:05.968Z level=INFO msg="snapshot computed" hour=2026-04-18T00:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.968Z level=INFO msg="snapshot computed" hour=2026-04-18T01:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.969Z level=INFO msg="snapshot computed" hour=2026-04-18T02:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.969Z level=INFO msg="snapshot computed" hour=2026-04-18T03:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.970Z level=INFO msg="snapshot computed" hour=2026-04-18T04:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.970Z level=INFO msg="snapshot computed" hour=2026-04-18T05:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.971Z level=INFO msg="snapshot computed" hour=2026-04-18T06:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.972Z level=INFO msg="snapshot computed" hour=2026-04-18T07:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.972Z level=INFO msg="snapshot computed" hour=2026-04-18T08:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.975Z level=INFO msg="snapshot computed" hour=2026-04-18T09:00:00Z duration_ms=2
+time=2026-04-23T07:44:05.975Z level=INFO msg="snapshot computed" hour=2026-04-18T10:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.976Z level=INFO msg="snapshot computed" hour=2026-04-18T11:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.976Z level=INFO msg="snapshot computed" hour=2026-04-18T12:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.977Z level=INFO msg="snapshot computed" hour=2026-04-18T13:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.977Z level=INFO msg="snapshot computed" hour=2026-04-18T14:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.978Z level=INFO msg="snapshot computed" hour=2026-04-18T15:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.978Z level=INFO msg="snapshot computed" hour=2026-04-18T16:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.979Z level=INFO msg="snapshot computed" hour=2026-04-18T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.981Z level=INFO msg="snapshot computed" hour=2026-04-18T18:00:00Z duration_ms=1
+time=2026-04-23T07:44:05.981Z level=INFO msg="snapshot computed" hour=2026-04-18T19:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.981Z level=INFO msg="snapshot computed" hour=2026-04-18T20:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.981Z level=INFO msg="snapshot computed" hour=2026-04-18T21:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.982Z level=INFO msg="snapshot computed" hour=2026-04-18T22:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.982Z level=INFO msg="snapshot computed" hour=2026-04-18T23:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.982Z level=INFO msg="snapshot computed" hour=2026-04-19T00:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.982Z level=INFO msg="snapshot computed" hour=2026-04-19T01:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.982Z level=INFO msg="snapshot computed" hour=2026-04-19T02:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.982Z level=INFO msg="snapshot computed" hour=2026-04-19T03:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.983Z level=INFO msg="snapshot computed" hour=2026-04-19T04:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.983Z level=INFO msg="snapshot computed" hour=2026-04-19T05:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.983Z level=INFO msg="snapshot computed" hour=2026-04-19T06:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.983Z level=INFO msg="snapshot computed" hour=2026-04-19T07:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.983Z level=INFO msg="snapshot computed" hour=2026-04-19T08:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.983Z level=INFO msg="snapshot computed" hour=2026-04-19T09:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.984Z level=INFO msg="snapshot computed" hour=2026-04-19T10:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.984Z level=INFO msg="snapshot computed" hour=2026-04-19T11:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.984Z level=INFO msg="snapshot computed" hour=2026-04-19T12:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.984Z level=INFO msg="snapshot computed" hour=2026-04-19T13:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.984Z level=INFO msg="snapshot computed" hour=2026-04-19T14:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.985Z level=INFO msg="snapshot computed" hour=2026-04-19T15:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.985Z level=INFO msg="snapshot computed" hour=2026-04-19T16:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.985Z level=INFO msg="snapshot computed" hour=2026-04-19T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.986Z level=INFO msg="snapshot computed" hour=2026-04-19T18:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.986Z level=INFO msg="snapshot computed" hour=2026-04-19T19:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.986Z level=INFO msg="snapshot computed" hour=2026-04-19T20:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.986Z level=INFO msg="snapshot computed" hour=2026-04-19T21:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.987Z level=INFO msg="snapshot computed" hour=2026-04-19T22:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.987Z level=INFO msg="snapshot computed" hour=2026-04-19T23:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.987Z level=INFO msg="snapshot computed" hour=2026-04-20T00:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.987Z level=INFO msg="snapshot computed" hour=2026-04-20T01:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.987Z level=INFO msg="snapshot computed" hour=2026-04-20T02:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.987Z level=INFO msg="snapshot computed" hour=2026-04-20T03:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.988Z level=INFO msg="snapshot computed" hour=2026-04-20T04:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.988Z level=INFO msg="snapshot computed" hour=2026-04-20T05:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.988Z level=INFO msg="snapshot computed" hour=2026-04-20T06:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.989Z level=INFO msg="snapshot computed" hour=2026-04-20T07:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.989Z level=INFO msg="snapshot computed" hour=2026-04-20T08:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.990Z level=INFO msg="snapshot computed" hour=2026-04-20T09:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.990Z level=INFO msg="snapshot computed" hour=2026-04-20T10:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.991Z level=INFO msg="snapshot computed" hour=2026-04-20T11:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.992Z level=INFO msg="snapshot computed" hour=2026-04-20T12:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.992Z level=INFO msg="snapshot computed" hour=2026-04-20T13:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.992Z level=INFO msg="snapshot computed" hour=2026-04-20T14:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.993Z level=INFO msg="snapshot computed" hour=2026-04-20T15:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.993Z level=INFO msg="snapshot computed" hour=2026-04-20T16:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.993Z level=INFO msg="snapshot computed" hour=2026-04-20T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.993Z level=INFO msg="snapshot computed" hour=2026-04-20T18:00:00Z duration_ms=0
+time=2026-04-23T07:44:05.998Z level=INFO msg="snapshot computed" hour=2026-04-20T19:00:00Z duration_ms=4
+time=2026-04-23T07:44:05.999Z level=INFO msg="snapshot computed" hour=2026-04-20T20:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.000Z level=INFO msg="snapshot computed" hour=2026-04-20T21:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.000Z level=INFO msg="snapshot computed" hour=2026-04-20T22:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.001Z level=INFO msg="snapshot computed" hour=2026-04-20T23:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.004Z level=INFO msg="snapshot computed" hour=2026-04-21T00:00:00Z duration_ms=2
+time=2026-04-23T07:44:06.008Z level=INFO msg="snapshot computed" hour=2026-04-21T01:00:00Z duration_ms=4
+time=2026-04-23T07:44:06.009Z level=INFO msg="snapshot computed" hour=2026-04-21T02:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.012Z level=INFO msg="snapshot computed" hour=2026-04-21T03:00:00Z duration_ms=2
+time=2026-04-23T07:44:06.013Z level=INFO msg="snapshot computed" hour=2026-04-21T04:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.014Z level=INFO msg="snapshot computed" hour=2026-04-21T05:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.020Z level=INFO msg="snapshot computed" hour=2026-04-21T06:00:00Z duration_ms=5
+time=2026-04-23T07:44:06.021Z level=INFO msg="snapshot computed" hour=2026-04-21T07:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.022Z level=INFO msg="snapshot computed" hour=2026-04-21T08:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.022Z level=INFO msg="snapshot computed" hour=2026-04-21T09:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.022Z level=INFO msg="snapshot computed" hour=2026-04-21T10:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.026Z level=INFO msg="snapshot computed" hour=2026-04-21T11:00:00Z duration_ms=3
+time=2026-04-23T07:44:06.026Z level=INFO msg="snapshot computed" hour=2026-04-21T12:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.028Z level=INFO msg="snapshot computed" hour=2026-04-21T13:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.030Z level=INFO msg="snapshot computed" hour=2026-04-21T14:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.030Z level=INFO msg="snapshot computed" hour=2026-04-21T15:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.031Z level=INFO msg="snapshot computed" hour=2026-04-21T16:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.031Z level=INFO msg="snapshot computed" hour=2026-04-21T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.032Z level=INFO msg="snapshot computed" hour=2026-04-21T18:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.033Z level=INFO msg="snapshot computed" hour=2026-04-21T19:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.034Z level=INFO msg="snapshot computed" hour=2026-04-21T20:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.035Z level=INFO msg="snapshot computed" hour=2026-04-21T21:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.035Z level=INFO msg="snapshot computed" hour=2026-04-21T22:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.036Z level=INFO msg="snapshot computed" hour=2026-04-21T23:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.037Z level=INFO msg="snapshot computed" hour=2026-04-22T00:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.037Z level=INFO msg="snapshot computed" hour=2026-04-22T01:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.038Z level=INFO msg="snapshot computed" hour=2026-04-22T02:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.038Z level=INFO msg="snapshot computed" hour=2026-04-22T03:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.039Z level=INFO msg="snapshot computed" hour=2026-04-22T04:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.044Z level=INFO msg="snapshot computed" hour=2026-04-22T05:00:00Z duration_ms=5
+time=2026-04-23T07:44:06.046Z level=INFO msg="snapshot computed" hour=2026-04-22T06:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.048Z level=INFO msg="snapshot computed" hour=2026-04-22T07:00:00Z duration_ms=2
+time=2026-04-23T07:44:06.057Z level=INFO msg="snapshot computed" hour=2026-04-22T08:00:00Z duration_ms=8
+time=2026-04-23T07:44:06.059Z level=INFO msg="snapshot computed" hour=2026-04-22T09:00:00Z duration_ms=2
+time=2026-04-23T07:44:06.061Z level=INFO msg="snapshot computed" hour=2026-04-22T10:00:00Z duration_ms=2
+time=2026-04-23T07:44:06.063Z level=INFO msg="snapshot computed" hour=2026-04-22T11:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.074Z level=INFO msg="snapshot computed" hour=2026-04-22T12:00:00Z duration_ms=10
+time=2026-04-23T07:44:06.076Z level=INFO msg="snapshot computed" hour=2026-04-22T13:00:00Z duration_ms=2
+time=2026-04-23T07:44:06.077Z level=INFO msg="snapshot computed" hour=2026-04-22T14:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.079Z level=INFO msg="snapshot computed" hour=2026-04-22T15:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.085Z level=INFO msg="snapshot computed" hour=2026-04-22T16:00:00Z duration_ms=6
+time=2026-04-23T07:44:06.086Z level=INFO msg="snapshot computed" hour=2026-04-22T17:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.087Z level=INFO msg="snapshot computed" hour=2026-04-22T18:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.088Z level=INFO msg="snapshot computed" hour=2026-04-22T19:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.090Z level=INFO msg="snapshot computed" hour=2026-04-22T20:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.092Z level=INFO msg="snapshot computed" hour=2026-04-22T21:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.094Z level=INFO msg="snapshot computed" hour=2026-04-22T22:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.107Z level=INFO msg="snapshot computed" hour=2026-04-22T23:00:00Z duration_ms=13
+time=2026-04-23T07:44:06.109Z level=INFO msg="snapshot computed" hour=2026-04-23T00:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.110Z level=INFO msg="snapshot computed" hour=2026-04-23T01:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.111Z level=INFO msg="snapshot computed" hour=2026-04-23T02:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.113Z level=INFO msg="snapshot computed" hour=2026-04-23T03:00:00Z duration_ms=1
+time=2026-04-23T07:44:06.114Z level=INFO msg="snapshot computed" hour=2026-04-23T04:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.115Z level=INFO msg="snapshot computed" hour=2026-04-23T05:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.115Z level=INFO msg="snapshot computed" hour=2026-04-23T06:00:00Z duration_ms=0
+time=2026-04-23T07:44:06.311Z level=INFO msg="all channels started"
+time=2026-04-23T07:44:06.312Z level=INFO msg="lane created" name=main concurrency=30
+time=2026-04-23T07:44:06.312Z level=INFO msg="lane created" name=subagent concurrency=50
+time=2026-04-23T07:44:06.312Z level=INFO msg="lane created" name=team concurrency=100
+time=2026-04-23T07:44:06.312Z level=INFO msg="lane created" name=cron concurrency=30
+time=2026-04-23T07:44:06.319Z level=INFO msg="pg cron service started"
+time=2026-04-23T07:44:06.319Z level=INFO msg="heartbeat ticker started"
+time=2026-04-23T07:44:06.319Z level=INFO msg="task ticker started" interval=5m0s
+time=2026-04-23T07:44:06.319Z level=INFO msg="goclaw gateway starting" version=dev protocol=3 agents=[] tools=39 channels=[dingtalk]
+time=2026-04-23T07:44:06.322Z level=INFO msg="inbound message consumer started"
+time=2026-04-23T07:44:06.322Z level=INFO msg="inbound debounce configured" debounce_ms=1000
+time=2026-04-23T07:44:06.322Z level=INFO msg="mcp.bridge: tools registered" count=18
+time=2026-04-23T07:44:06.324Z level=INFO msg="serving embedded web UI"
+time=2026-04-23T07:44:06.324Z level=WARN msg="security.cors_open: no allowed_origins configured — all WebSocket origins accepted. Set gateway.allowed_origins or GOCLAW_ALLOWED_ORIGINS for production"
+time=2026-04-23T07:44:06.324Z level=INFO msg="gateway starting" addr=0.0.0.0:18790
+time=2026-04-23T07:44:08.349Z level=INFO msg="seeder: async dep check complete" checked=5
+time=2026-04-23T07:44:12.382Z level=INFO msg="security.server_ip_scrub: public IP registered" ip=45.62.117.110
+time=2026-04-23T07:44:12.387Z level=INFO msg="security.server_ip_scrub: derived values registered" count=2 values="[759068014 45-62-117-110]"
+time=2026-04-23T08:05:06.345Z level=INFO msg="snapshot computed" hour=2026-04-11T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.345Z level=INFO msg="snapshot computed" hour=2026-04-11T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.346Z level=INFO msg="snapshot computed" hour=2026-04-11T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.347Z level=INFO msg="snapshot computed" hour=2026-04-11T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.347Z level=INFO msg="snapshot computed" hour=2026-04-11T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.348Z level=INFO msg="snapshot computed" hour=2026-04-11T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.348Z level=INFO msg="snapshot computed" hour=2026-04-11T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.349Z level=INFO msg="snapshot computed" hour=2026-04-11T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.349Z level=INFO msg="snapshot computed" hour=2026-04-11T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.350Z level=INFO msg="snapshot computed" hour=2026-04-11T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.351Z level=INFO msg="snapshot computed" hour=2026-04-11T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.352Z level=INFO msg="snapshot computed" hour=2026-04-11T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.352Z level=INFO msg="snapshot computed" hour=2026-04-11T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.353Z level=INFO msg="snapshot computed" hour=2026-04-11T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.354Z level=INFO msg="snapshot computed" hour=2026-04-11T16:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.354Z level=INFO msg="snapshot computed" hour=2026-04-11T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.355Z level=INFO msg="snapshot computed" hour=2026-04-11T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.356Z level=INFO msg="snapshot computed" hour=2026-04-11T19:00:00Z duration_ms=1
+time=2026-04-23T08:05:06.357Z level=INFO msg="snapshot computed" hour=2026-04-11T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.357Z level=INFO msg="snapshot computed" hour=2026-04-11T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.358Z level=INFO msg="snapshot computed" hour=2026-04-11T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.358Z level=INFO msg="snapshot computed" hour=2026-04-11T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.359Z level=INFO msg="snapshot computed" hour=2026-04-12T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.360Z level=INFO msg="snapshot computed" hour=2026-04-12T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.361Z level=INFO msg="snapshot computed" hour=2026-04-12T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.362Z level=INFO msg="snapshot computed" hour=2026-04-12T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.362Z level=INFO msg="snapshot computed" hour=2026-04-12T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.363Z level=INFO msg="snapshot computed" hour=2026-04-12T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.363Z level=INFO msg="snapshot computed" hour=2026-04-12T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.364Z level=INFO msg="snapshot computed" hour=2026-04-12T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.365Z level=INFO msg="snapshot computed" hour=2026-04-12T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.366Z level=INFO msg="snapshot computed" hour=2026-04-12T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.366Z level=INFO msg="snapshot computed" hour=2026-04-12T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.367Z level=INFO msg="snapshot computed" hour=2026-04-12T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.367Z level=INFO msg="snapshot computed" hour=2026-04-12T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.368Z level=INFO msg="snapshot computed" hour=2026-04-12T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.369Z level=INFO msg="snapshot computed" hour=2026-04-12T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.369Z level=INFO msg="snapshot computed" hour=2026-04-12T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.370Z level=INFO msg="snapshot computed" hour=2026-04-12T16:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.371Z level=INFO msg="snapshot computed" hour=2026-04-12T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.371Z level=INFO msg="snapshot computed" hour=2026-04-12T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.372Z level=INFO msg="snapshot computed" hour=2026-04-12T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.373Z level=INFO msg="snapshot computed" hour=2026-04-12T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.373Z level=INFO msg="snapshot computed" hour=2026-04-12T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.374Z level=INFO msg="snapshot computed" hour=2026-04-12T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.374Z level=INFO msg="snapshot computed" hour=2026-04-12T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.375Z level=INFO msg="snapshot computed" hour=2026-04-13T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.375Z level=INFO msg="snapshot computed" hour=2026-04-13T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.376Z level=INFO msg="snapshot computed" hour=2026-04-13T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.377Z level=INFO msg="snapshot computed" hour=2026-04-13T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.377Z level=INFO msg="snapshot computed" hour=2026-04-13T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.378Z level=INFO msg="snapshot computed" hour=2026-04-13T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.378Z level=INFO msg="snapshot computed" hour=2026-04-13T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.379Z level=INFO msg="snapshot computed" hour=2026-04-13T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.379Z level=INFO msg="snapshot computed" hour=2026-04-13T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.380Z level=INFO msg="snapshot computed" hour=2026-04-13T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.380Z level=INFO msg="snapshot computed" hour=2026-04-13T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.381Z level=INFO msg="snapshot computed" hour=2026-04-13T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.381Z level=INFO msg="snapshot computed" hour=2026-04-13T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.382Z level=INFO msg="snapshot computed" hour=2026-04-13T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.383Z level=INFO msg="snapshot computed" hour=2026-04-13T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.384Z level=INFO msg="snapshot computed" hour=2026-04-13T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.385Z level=INFO msg="snapshot computed" hour=2026-04-13T16:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.385Z level=INFO msg="snapshot computed" hour=2026-04-13T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.386Z level=INFO msg="snapshot computed" hour=2026-04-13T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.387Z level=INFO msg="snapshot computed" hour=2026-04-13T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.388Z level=INFO msg="snapshot computed" hour=2026-04-13T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.390Z level=INFO msg="snapshot computed" hour=2026-04-13T21:00:00Z duration_ms=1
+time=2026-04-23T08:05:06.391Z level=INFO msg="snapshot computed" hour=2026-04-13T22:00:00Z duration_ms=1
+time=2026-04-23T08:05:06.392Z level=INFO msg="snapshot computed" hour=2026-04-13T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.392Z level=INFO msg="snapshot computed" hour=2026-04-14T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.393Z level=INFO msg="snapshot computed" hour=2026-04-14T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.394Z level=INFO msg="snapshot computed" hour=2026-04-14T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.395Z level=INFO msg="snapshot computed" hour=2026-04-14T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.395Z level=INFO msg="snapshot computed" hour=2026-04-14T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.396Z level=INFO msg="snapshot computed" hour=2026-04-14T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.397Z level=INFO msg="snapshot computed" hour=2026-04-14T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.397Z level=INFO msg="snapshot computed" hour=2026-04-14T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.398Z level=INFO msg="snapshot computed" hour=2026-04-14T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.399Z level=INFO msg="snapshot computed" hour=2026-04-14T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.399Z level=INFO msg="snapshot computed" hour=2026-04-14T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.400Z level=INFO msg="snapshot computed" hour=2026-04-14T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.400Z level=INFO msg="snapshot computed" hour=2026-04-14T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.401Z level=INFO msg="snapshot computed" hour=2026-04-14T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.401Z level=INFO msg="snapshot computed" hour=2026-04-14T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.402Z level=INFO msg="snapshot computed" hour=2026-04-14T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.403Z level=INFO msg="snapshot computed" hour=2026-04-14T16:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.403Z level=INFO msg="snapshot computed" hour=2026-04-14T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.404Z level=INFO msg="snapshot computed" hour=2026-04-14T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.405Z level=INFO msg="snapshot computed" hour=2026-04-14T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.405Z level=INFO msg="snapshot computed" hour=2026-04-14T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.406Z level=INFO msg="snapshot computed" hour=2026-04-14T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.407Z level=INFO msg="snapshot computed" hour=2026-04-14T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.407Z level=INFO msg="snapshot computed" hour=2026-04-14T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.408Z level=INFO msg="snapshot computed" hour=2026-04-15T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.408Z level=INFO msg="snapshot computed" hour=2026-04-15T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.409Z level=INFO msg="snapshot computed" hour=2026-04-15T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.410Z level=INFO msg="snapshot computed" hour=2026-04-15T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.410Z level=INFO msg="snapshot computed" hour=2026-04-15T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.411Z level=INFO msg="snapshot computed" hour=2026-04-15T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.411Z level=INFO msg="snapshot computed" hour=2026-04-15T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.412Z level=INFO msg="snapshot computed" hour=2026-04-15T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.412Z level=INFO msg="snapshot computed" hour=2026-04-15T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.413Z level=INFO msg="snapshot computed" hour=2026-04-15T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.414Z level=INFO msg="snapshot computed" hour=2026-04-15T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.414Z level=INFO msg="snapshot computed" hour=2026-04-15T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.415Z level=INFO msg="snapshot computed" hour=2026-04-15T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.416Z level=INFO msg="snapshot computed" hour=2026-04-15T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.417Z level=INFO msg="snapshot computed" hour=2026-04-15T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.418Z level=INFO msg="snapshot computed" hour=2026-04-15T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.419Z level=INFO msg="snapshot computed" hour=2026-04-15T16:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.419Z level=INFO msg="snapshot computed" hour=2026-04-15T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.420Z level=INFO msg="snapshot computed" hour=2026-04-15T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.421Z level=INFO msg="snapshot computed" hour=2026-04-15T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.421Z level=INFO msg="snapshot computed" hour=2026-04-15T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.422Z level=INFO msg="snapshot computed" hour=2026-04-15T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.423Z level=INFO msg="snapshot computed" hour=2026-04-15T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.424Z level=INFO msg="snapshot computed" hour=2026-04-15T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.425Z level=INFO msg="snapshot computed" hour=2026-04-16T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.425Z level=INFO msg="snapshot computed" hour=2026-04-16T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.426Z level=INFO msg="snapshot computed" hour=2026-04-16T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.427Z level=INFO msg="snapshot computed" hour=2026-04-16T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.427Z level=INFO msg="snapshot computed" hour=2026-04-16T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.428Z level=INFO msg="snapshot computed" hour=2026-04-16T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.429Z level=INFO msg="snapshot computed" hour=2026-04-16T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.429Z level=INFO msg="snapshot computed" hour=2026-04-16T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.430Z level=INFO msg="snapshot computed" hour=2026-04-16T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.431Z level=INFO msg="snapshot computed" hour=2026-04-16T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.432Z level=INFO msg="snapshot computed" hour=2026-04-16T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.432Z level=INFO msg="snapshot computed" hour=2026-04-16T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.433Z level=INFO msg="snapshot computed" hour=2026-04-16T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.434Z level=INFO msg="snapshot computed" hour=2026-04-16T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.434Z level=INFO msg="snapshot computed" hour=2026-04-16T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.435Z level=INFO msg="snapshot computed" hour=2026-04-16T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.435Z level=INFO msg="snapshot computed" hour=2026-04-16T16:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.435Z level=INFO msg="snapshot computed" hour=2026-04-16T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.436Z level=INFO msg="snapshot computed" hour=2026-04-16T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.436Z level=INFO msg="snapshot computed" hour=2026-04-16T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.437Z level=INFO msg="snapshot computed" hour=2026-04-16T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.438Z level=INFO msg="snapshot computed" hour=2026-04-16T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.438Z level=INFO msg="snapshot computed" hour=2026-04-16T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.439Z level=INFO msg="snapshot computed" hour=2026-04-16T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.439Z level=INFO msg="snapshot computed" hour=2026-04-17T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.440Z level=INFO msg="snapshot computed" hour=2026-04-17T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.441Z level=INFO msg="snapshot computed" hour=2026-04-17T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.441Z level=INFO msg="snapshot computed" hour=2026-04-17T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.442Z level=INFO msg="snapshot computed" hour=2026-04-17T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.443Z level=INFO msg="snapshot computed" hour=2026-04-17T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.443Z level=INFO msg="snapshot computed" hour=2026-04-17T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.443Z level=INFO msg="snapshot computed" hour=2026-04-17T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.444Z level=INFO msg="snapshot computed" hour=2026-04-17T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.444Z level=INFO msg="snapshot computed" hour=2026-04-17T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.445Z level=INFO msg="snapshot computed" hour=2026-04-17T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.445Z level=INFO msg="snapshot computed" hour=2026-04-17T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.446Z level=INFO msg="snapshot computed" hour=2026-04-17T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.447Z level=INFO msg="snapshot computed" hour=2026-04-17T13:00:00Z duration_ms=1
+time=2026-04-23T08:05:06.448Z level=INFO msg="snapshot computed" hour=2026-04-17T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.449Z level=INFO msg="snapshot computed" hour=2026-04-17T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.449Z level=INFO msg="snapshot computed" hour=2026-04-17T16:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.451Z level=INFO msg="snapshot computed" hour=2026-04-17T17:00:00Z duration_ms=1
+time=2026-04-23T08:05:06.451Z level=INFO msg="snapshot computed" hour=2026-04-17T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.452Z level=INFO msg="snapshot computed" hour=2026-04-17T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.453Z level=INFO msg="snapshot computed" hour=2026-04-17T20:00:00Z duration_ms=1
+time=2026-04-23T08:05:06.454Z level=INFO msg="snapshot computed" hour=2026-04-17T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.455Z level=INFO msg="snapshot computed" hour=2026-04-17T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.455Z level=INFO msg="snapshot computed" hour=2026-04-17T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.456Z level=INFO msg="snapshot computed" hour=2026-04-18T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.456Z level=INFO msg="snapshot computed" hour=2026-04-18T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.457Z level=INFO msg="snapshot computed" hour=2026-04-18T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.457Z level=INFO msg="snapshot computed" hour=2026-04-18T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.458Z level=INFO msg="snapshot computed" hour=2026-04-18T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.459Z level=INFO msg="snapshot computed" hour=2026-04-18T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.459Z level=INFO msg="snapshot computed" hour=2026-04-18T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.460Z level=INFO msg="snapshot computed" hour=2026-04-18T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.461Z level=INFO msg="snapshot computed" hour=2026-04-18T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.461Z level=INFO msg="snapshot computed" hour=2026-04-18T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.462Z level=INFO msg="snapshot computed" hour=2026-04-18T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.463Z level=INFO msg="snapshot computed" hour=2026-04-18T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.463Z level=INFO msg="snapshot computed" hour=2026-04-18T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.464Z level=INFO msg="snapshot computed" hour=2026-04-18T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.464Z level=INFO msg="snapshot computed" hour=2026-04-18T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.465Z level=INFO msg="snapshot computed" hour=2026-04-18T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.466Z level=INFO msg="snapshot computed" hour=2026-04-18T16:00:00Z duration_ms=1
+time=2026-04-23T08:05:06.467Z level=INFO msg="snapshot computed" hour=2026-04-18T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.467Z level=INFO msg="snapshot computed" hour=2026-04-18T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.468Z level=INFO msg="snapshot computed" hour=2026-04-18T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.469Z level=INFO msg="snapshot computed" hour=2026-04-18T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.469Z level=INFO msg="snapshot computed" hour=2026-04-18T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.470Z level=INFO msg="snapshot computed" hour=2026-04-18T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.470Z level=INFO msg="snapshot computed" hour=2026-04-18T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.471Z level=INFO msg="snapshot computed" hour=2026-04-19T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.471Z level=INFO msg="snapshot computed" hour=2026-04-19T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.472Z level=INFO msg="snapshot computed" hour=2026-04-19T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.473Z level=INFO msg="snapshot computed" hour=2026-04-19T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.474Z level=INFO msg="snapshot computed" hour=2026-04-19T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.474Z level=INFO msg="snapshot computed" hour=2026-04-19T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.475Z level=INFO msg="snapshot computed" hour=2026-04-19T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.475Z level=INFO msg="snapshot computed" hour=2026-04-19T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.476Z level=INFO msg="snapshot computed" hour=2026-04-19T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.477Z level=INFO msg="snapshot computed" hour=2026-04-19T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.478Z level=INFO msg="snapshot computed" hour=2026-04-19T10:00:00Z duration_ms=1
+time=2026-04-23T08:05:06.478Z level=INFO msg="snapshot computed" hour=2026-04-19T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.479Z level=INFO msg="snapshot computed" hour=2026-04-19T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.480Z level=INFO msg="snapshot computed" hour=2026-04-19T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.480Z level=INFO msg="snapshot computed" hour=2026-04-19T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.481Z level=INFO msg="snapshot computed" hour=2026-04-19T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.482Z level=INFO msg="snapshot computed" hour=2026-04-19T16:00:00Z duration_ms=1
+time=2026-04-23T08:05:06.483Z level=INFO msg="snapshot computed" hour=2026-04-19T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.483Z level=INFO msg="snapshot computed" hour=2026-04-19T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.483Z level=INFO msg="snapshot computed" hour=2026-04-19T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.483Z level=INFO msg="snapshot computed" hour=2026-04-19T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.484Z level=INFO msg="snapshot computed" hour=2026-04-19T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.484Z level=INFO msg="snapshot computed" hour=2026-04-19T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.484Z level=INFO msg="snapshot computed" hour=2026-04-19T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.484Z level=INFO msg="snapshot computed" hour=2026-04-20T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.485Z level=INFO msg="snapshot computed" hour=2026-04-20T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.485Z level=INFO msg="snapshot computed" hour=2026-04-20T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.485Z level=INFO msg="snapshot computed" hour=2026-04-20T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.485Z level=INFO msg="snapshot computed" hour=2026-04-20T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.486Z level=INFO msg="snapshot computed" hour=2026-04-20T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.486Z level=INFO msg="snapshot computed" hour=2026-04-20T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.486Z level=INFO msg="snapshot computed" hour=2026-04-20T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.486Z level=INFO msg="snapshot computed" hour=2026-04-20T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.486Z level=INFO msg="snapshot computed" hour=2026-04-20T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.487Z level=INFO msg="snapshot computed" hour=2026-04-20T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.487Z level=INFO msg="snapshot computed" hour=2026-04-20T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.487Z level=INFO msg="snapshot computed" hour=2026-04-20T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.487Z level=INFO msg="snapshot computed" hour=2026-04-20T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.487Z level=INFO msg="snapshot computed" hour=2026-04-20T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.487Z level=INFO msg="snapshot computed" hour=2026-04-20T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.488Z level=INFO msg="snapshot computed" hour=2026-04-20T16:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.488Z level=INFO msg="snapshot computed" hour=2026-04-20T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.488Z level=INFO msg="snapshot computed" hour=2026-04-20T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.488Z level=INFO msg="snapshot computed" hour=2026-04-20T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.489Z level=INFO msg="snapshot computed" hour=2026-04-20T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.489Z level=INFO msg="snapshot computed" hour=2026-04-20T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.489Z level=INFO msg="snapshot computed" hour=2026-04-20T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.489Z level=INFO msg="snapshot computed" hour=2026-04-20T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.489Z level=INFO msg="snapshot computed" hour=2026-04-21T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.490Z level=INFO msg="snapshot computed" hour=2026-04-21T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.490Z level=INFO msg="snapshot computed" hour=2026-04-21T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.490Z level=INFO msg="snapshot computed" hour=2026-04-21T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.490Z level=INFO msg="snapshot computed" hour=2026-04-21T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.490Z level=INFO msg="snapshot computed" hour=2026-04-21T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.490Z level=INFO msg="snapshot computed" hour=2026-04-21T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.490Z level=INFO msg="snapshot computed" hour=2026-04-21T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.491Z level=INFO msg="snapshot computed" hour=2026-04-21T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.491Z level=INFO msg="snapshot computed" hour=2026-04-21T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.491Z level=INFO msg="snapshot computed" hour=2026-04-21T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.491Z level=INFO msg="snapshot computed" hour=2026-04-21T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.491Z level=INFO msg="snapshot computed" hour=2026-04-21T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.491Z level=INFO msg="snapshot computed" hour=2026-04-21T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.491Z level=INFO msg="snapshot computed" hour=2026-04-21T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.492Z level=INFO msg="snapshot computed" hour=2026-04-21T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.492Z level=INFO msg="snapshot computed" hour=2026-04-21T16:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.492Z level=INFO msg="snapshot computed" hour=2026-04-21T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.492Z level=INFO msg="snapshot computed" hour=2026-04-21T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.492Z level=INFO msg="snapshot computed" hour=2026-04-21T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.493Z level=INFO msg="snapshot computed" hour=2026-04-21T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.493Z level=INFO msg="snapshot computed" hour=2026-04-21T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.493Z level=INFO msg="snapshot computed" hour=2026-04-21T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.493Z level=INFO msg="snapshot computed" hour=2026-04-21T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.493Z level=INFO msg="snapshot computed" hour=2026-04-22T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.494Z level=INFO msg="snapshot computed" hour=2026-04-22T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.494Z level=INFO msg="snapshot computed" hour=2026-04-22T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.494Z level=INFO msg="snapshot computed" hour=2026-04-22T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.494Z level=INFO msg="snapshot computed" hour=2026-04-22T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.494Z level=INFO msg="snapshot computed" hour=2026-04-22T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.494Z level=INFO msg="snapshot computed" hour=2026-04-22T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.495Z level=INFO msg="snapshot computed" hour=2026-04-22T07:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.495Z level=INFO msg="snapshot computed" hour=2026-04-22T08:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.495Z level=INFO msg="snapshot computed" hour=2026-04-22T09:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.495Z level=INFO msg="snapshot computed" hour=2026-04-22T10:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.495Z level=INFO msg="snapshot computed" hour=2026-04-22T11:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.495Z level=INFO msg="snapshot computed" hour=2026-04-22T12:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.495Z level=INFO msg="snapshot computed" hour=2026-04-22T13:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.496Z level=INFO msg="snapshot computed" hour=2026-04-22T14:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.496Z level=INFO msg="snapshot computed" hour=2026-04-22T15:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.496Z level=INFO msg="snapshot computed" hour=2026-04-22T16:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.497Z level=INFO msg="snapshot computed" hour=2026-04-22T17:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.497Z level=INFO msg="snapshot computed" hour=2026-04-22T18:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.497Z level=INFO msg="snapshot computed" hour=2026-04-22T19:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.498Z level=INFO msg="snapshot computed" hour=2026-04-22T20:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.498Z level=INFO msg="snapshot computed" hour=2026-04-22T21:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.498Z level=INFO msg="snapshot computed" hour=2026-04-22T22:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.498Z level=INFO msg="snapshot computed" hour=2026-04-22T23:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.499Z level=INFO msg="snapshot computed" hour=2026-04-23T00:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.499Z level=INFO msg="snapshot computed" hour=2026-04-23T01:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.499Z level=INFO msg="snapshot computed" hour=2026-04-23T02:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.499Z level=INFO msg="snapshot computed" hour=2026-04-23T03:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.499Z level=INFO msg="snapshot computed" hour=2026-04-23T04:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.499Z level=INFO msg="snapshot computed" hour=2026-04-23T05:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.500Z level=INFO msg="snapshot computed" hour=2026-04-23T06:00:00Z duration_ms=0
+time=2026-04-23T08:05:06.500Z level=INFO msg="snapshot computed" hour=2026-04-23T07:00:00Z duration_ms=0
