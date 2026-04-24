@@ -31,12 +31,21 @@ func TestIsSilentReply(t *testing.T) {
 		{"prefix + space + content", "NO_REPLY hello", true},
 		{"prefix + colon + content", "NO_REPLY: offline", true},
 		{"prefix + because", "NO_REPLY because user is away", true},
+		// Empty and punctuation-only replies
+		{"empty", "", true},
+		{"whitespace only", "   ", true},
+		{"punctuation only", "...", true},
+		{"chinese punctuation", "。。。", true},
+		// Localized empty placeholders
+		{"localized empty 1", "无新消息", true},
+		{"localized empty 2", "暂无新消息", true},
+		{"localized empty 3", "无", true},
+		{"localized empty 4", "None", true},
+		{"localized empty with punctuation", "无新消息...", true},
 		// NOT silent — token glued to another word, or not at start.
 		{"embedded word", "NO_REPLYING", false},
 		{"trailing after content", "Here you go. NO_REPLY", false},
 		{"token mid-sentence", "Hello NO_REPLY world", false},
-		{"empty", "", false},
-		{"whitespace only", "   ", false},
 		{"unrelated text", "no reply needed", false},
 	}
 	for _, c := range cases {

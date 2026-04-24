@@ -378,7 +378,11 @@ func StripConfigLeak(content, agentType string) string {
 
 // --- NO_REPLY detection ---
 
-// IsSilentReply checks if the text begins with a NO_REPLY token.
+// IsSilentReply checks if the text should be suppressed entirely (no reply).
+//
+// Matches NO_REPLY variants (decorative wrappers, trailing explanations)
+// as well as pure punctuation replies (like "...") and common localized
+// placeholder phrases like "无新消息".
 //
 // Divergent from TS isSilentReplyText() (exact-match only) — we match broadly:
 // decorative wrappers (`NO_REPLY_`, `"NO_REPLY"`, `**NO_REPLY**`) AND trailing
@@ -392,10 +396,22 @@ func StripConfigLeak(content, agentType string) string {
 func IsSilentReply(text string) bool {
 	trimmed := strings.TrimSpace(text)
 	if trimmed == "" {
-		return false
+		return true // empty messages are silent
 	}
 	// Strip decorative wrappers from both ends (quotes, markdown emphasis, punctuation).
-	stripped := strings.Trim(trimmed, "_ \t\n\r.,:;!?\"'`*~#>-()[]{}")
+	stripped := strings.Trim(trimmed, "_ \t\n\r.,:;!?\"'`*~#>-()[]{}。，：；！？、“”‘’（）【】《》")
+	
+	// If the entire message was just punctuation/decorations (e.g., "..."), treat it as a silent reply.
+	if stripped == "" {
+		return true
+	}
+
+	// Check for common localized "no new messages" placeholders
+	lower := strings.ToLower(stripped)
+	if lower == "无新消息" || lower == "暂无新消息" || lower == "无消息" || lower == "没有新消息" || lower == "none" || lower == "无" || lower == "null" {
+		return true
+	}
+
 	const token = "NO_REPLY"
 	if len(stripped) < len(token) {
 		return false
