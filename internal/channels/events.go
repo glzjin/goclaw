@@ -2,6 +2,7 @@ package channels
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -136,9 +137,13 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 			// the card shows all tools called (persists after finalization).
 			if toolName != "" && rc.Streaming && sc != nil {
 				statusText := formatToolStatus(toolName)
+				if argsStr := extractPayloadJSON(payload, "arguments"); argsStr != "" && argsStr != "{}" {
+					statusText += fmt.Sprintf("\n> **Args:**\n> ```json\n> %s\n> ```", strings.ReplaceAll(argsStr, "\n", "\n> "))
+				}
+
 				rc.mu.Lock()
 				if rc.toolStatusOnly {
-					rc.streamBuffer += statusText + "\n"
+					rc.streamBuffer += "\n\n" + statusText + "\n"
 				} else {
 					rc.streamBuffer = statusText + "\n"
 				}
@@ -166,6 +171,27 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 					currentStream.Update(ctx, fullStatus)
 				}
 			}
+		case protocol.AgentEventToolResult:
+			result := extractPayloadString(payload, "result")
+			isError, _ := extractPayloadBool(payload, "is_error")
+			if result != "" && rc.Streaming && sc != nil {
+				rc.mu.Lock()
+				if rc.toolStatusOnly {
+					title := "Result"
+					if isError {
+						title = "Error"
+					}
+					rc.streamBuffer += fmt.Sprintf("\n> **%s:**\n> ```text\n> %s\n> ```\n", title, strings.ReplaceAll(result, "\n", "\n> "))
+					fullStatus := rc.streamBuffer
+					currentStream := rc.stream
+					rc.mu.Unlock()
+					if currentStream != nil {
+						currentStream.Update(ctx, fullStatus)
+					}
+				} else {
+					rc.mu.Unlock()
+				}
+			}
 		case protocol.ChatEventChunk:
 			// Accumulate chunk deltas into full text.
 			content := extractPayloadString(payload, "content")
@@ -180,7 +206,7 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 				if rc.inToolPhase {
 					if rc.toolStatusOnly && rc.stream != nil {
 						// Keep tool-status card — text will appear below status.
-						rc.streamBuffer += "\n"
+						rc.streamBuffer += "\n\n---\n\n"
 					} else {
 						rc.streamBuffer = ""
 					}
@@ -439,6 +465,34 @@ func extractPayloadString(payload any, key string) string {
 		}
 	}
 	return ""
+}
+
+// extractPayloadJSON extracts and formats a field as JSON.
+func extractPayloadJSON(payload any, key string) string {
+	var val any
+	switch p := payload.(type) {
+	case map[string]any:
+		val = p[key]
+	}
+	if val == nil {
+		return ""
+	}
+	b, err := json.MarshalIndent(val, "", "  ")
+	if err != nil {
+		return ""
+	}
+	return string(b)
+}
+
+// extractPayloadBool extracts a boolean field.
+func extractPayloadBool(payload any, key string) (bool, bool) {
+	switch p := payload.(type) {
+	case map[string]any:
+		if v, ok := p[key].(bool); ok {
+			return v, true
+		}
+	}
+	return false, false
 }
 
 
