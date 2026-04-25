@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nextlevelbuilder/goclaw/internal/crypto"
 )
 
@@ -26,7 +27,13 @@ func (s *PGConfigSecretsStore) Get(ctx context.Context, key string) (string, err
 	err := s.db.QueryRowContext(ctx,
 		`SELECT value FROM config_secrets WHERE key = $1 AND tenant_id = $2`, key, tid).Scan(&value)
 	if err != nil {
-		return "", err
+		if err == sql.ErrNoRows && tid != uuid.Nil {
+			err = s.db.QueryRowContext(ctx,
+				`SELECT value FROM config_secrets WHERE key = $1 AND tenant_id = $2`, key, uuid.Nil).Scan(&value)
+		}
+		if err != nil {
+			return "", err
+		}
 	}
 
 	if len(value) > 0 && s.encKey != "" {
