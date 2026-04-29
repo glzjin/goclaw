@@ -135,7 +135,7 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 
 			// Show tool status in streaming card. Accumulate tool names so
 			// the card shows all tools called (persists after finalization).
-			if toolName != "" && rc.Streaming && sc != nil {
+			if toolName != "" && rc.ToolStatusEnabled && rc.Streaming && sc != nil {
 				statusText := formatToolStatus(toolName)
 				if argsStr := extractPayloadJSON(payload, "arguments"); argsStr != "" && argsStr != "{}" {
 					statusText += fmt.Sprintf("\n> **Args:**\n> ```json\n> %s\n> ```", strings.ReplaceAll(argsStr, "\n", "\n> "))
@@ -174,7 +174,7 @@ func (m *Manager) HandleAgentEvent(eventType, runID string, payload any) {
 		case protocol.AgentEventToolResult:
 			result := extractPayloadString(payload, "result")
 			isError, _ := extractPayloadBool(payload, "is_error")
-			if result != "" && rc.Streaming && sc != nil {
+			if result != "" && rc.ToolStatusEnabled && rc.Streaming && sc != nil {
 				rc.mu.Lock()
 				if rc.toolStatusOnly {
 					title := "Result"
